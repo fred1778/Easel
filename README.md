@@ -1,1 +1,1 @@
-# gallery
+# Easel
