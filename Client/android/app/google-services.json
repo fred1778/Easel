@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "96813620456",
+    "project_id": "easel-e5104",
+    "storage_bucket": "easel-e5104.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:96813620456:android:3f218fb0bcd80ff17d3d5d",
+        "android_client_info": {
+          "package_name": "com.example.easel"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQEzXJMhwZAiSs9Mwl8IuIN3lmtfaCzjY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
