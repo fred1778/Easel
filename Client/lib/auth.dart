@@ -1,11 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+class Registrant {
+  Registrant();
+
+  var email = "";
+  var password = "";
+
+  bool ready() {
+    return (email != "" && password != "");
+  }
+}
+
 class BootManager {
   BootManager();
+
+  static Registrant newUser = Registrant();
 
   static bool loginRequired = false;
 
@@ -41,17 +52,23 @@ class BootManager {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print("startup complete");
+
+    //    BootManager.deleteUser();
     BootManager.authListen();
   }
 
-  static Future<void> registerUser(String emailAddress, String password) async {
+  static Future<void> deleteUser() async {
+    if (FirebaseAuth.instance.currentUser != null) {
+      await FirebaseAuth.instance.currentUser!.delete();
+    }
+  }
+
+  static Future<void> registerUser(String email, String pw) async {
     print("Attempting user reg");
+
     try {
       final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: emailAddress,
-            password: password,
-          );
+          .createUserWithEmailAndPassword(email: email, password: pw);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
