@@ -32,6 +32,24 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "cloud_firestore",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/cloud_firestore-5.6.9",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "cloud_firestore_platform_interface",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/cloud_firestore_platform_interface-6.6.9",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "cloud_firestore_web",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/cloud_firestore_web-4.4.9",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "collection",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/collection-1.19.1",
       "packageUri": "lib/",
@@ -218,6 +236,12 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "pinch_zoom",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/pinch_zoom-2.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "platform",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/platform-3.1.6",
       "packageUri": "lib/",
@@ -309,8 +333,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.8.0",
+  "generatorVersion": "3.8.1",
   "flutterRoot": "file:///Users/fredclamp-gray/FlutterDev/flutter",
-  "flutterVersion": "3.32.0",
+  "flutterVersion": "3.32.5",
   "pubCache": "file:///Users/fredclamp-gray/.pub-cache"
 }

@@ -1,8 +1,17 @@
 import 'package:easel/auth.dart';
+import 'package:easel/homefeed.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'login.dart';
+import 'auth.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-void main() {
+void main() async {
+  print("eeeee");
+  await BootManager.boot();
+  print("xxxx");
   runApp(const MainApp());
 }
 
@@ -11,93 +20,59 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    BootManager.boot();
-    //BootManager.authListen();
-    return const MaterialApp(
-      home: Scaffold(body: Center(child: LoginScreen())),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Easel'),
+          titleTextStyle: GoogleFonts.playfairDisplay(
+            color: Colors.black,
+            fontSize: 50.0,
+          ),
+          surfaceTintColor: Colors.white,
+          centerTitle: false,
+          actionsPadding: EdgeInsets.all(5),
+          actions: [
+            if (!BootManager.loginRequired)
+              Icon(Icons.account_circle_sharp, size: 45, color: Colors.black),
+          ],
+        ),
+        body: Center(
+          child: () {
+            if (BootManager.loginRequired) {
+              return LoginScreen();
+            }
+            print(
+              " && homefeed for " +
+                  (FirebaseAuth.instance.currentUser?.uid ?? "d"),
+            );
+            return Homefeed();
+          }(),
+        ),
+      ),
     );
   }
 }
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+class StartSwitch extends StatefulWidget {
+  const StartSwitch({super.key});
+
+  @override
+  State<StartSwitch> createState() => SwitchState();
+}
+
+class SwitchState extends State<StartSwitch> {
+  var loggedIn = false;
+
   @override
   Widget build(BuildContext context) {
-    var userEmail = "";
-    var userPw = "";
-
+    // TODO: implement build
     return Container(
-      padding: EdgeInsets.all(10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          SizedBox(height: 30),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "Easel",
-                style: GoogleFonts.playfairDisplay(
-                  color: Colors.blueGrey,
-                  fontSize: 90,
-                ),
-                maxLines: 10,
-              ),
-              Spacer(),
-            ],
-          ),
-          SizedBox(height: 80),
-
-          TextField(
-            style: GoogleFonts.playfair(),
-            onSubmitted: (String value) {
-              print(value);
-
-              userEmail = value;
-            },
-
-            obscureText: false,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-              ),
-              labelText: 'Email',
-              labelStyle: GoogleFonts.playfair(),
-            ),
-          ),
-          SizedBox(height: 20),
-          TextField(
-            style: GoogleFonts.playfair(),
-            onSubmitted: (String value) {
-              print(value);
-              userPw = value;
-            },
-            obscureText: true,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(20)),
-              ),
-              labelText: 'Password',
-              labelStyle: GoogleFonts.playfair(),
-            ),
-          ),
-
-          Row(
-            children: [
-              Spacer(),
-              FilledButton(
-                onPressed: () {
-                  print("current context email is ${userEmail}pw $userPw");
-                  BootManager.registerUser(userEmail, userPw);
-                },
-                child: const Text('Register'),
-              ),
-            ],
-          ),
-
-          Spacer(),
-        ],
-      ),
+      child: () {
+        if (loggedIn) {
+          return Homefeed();
+        }
+        return LoginScreen();
+      }(),
     );
   }
 }

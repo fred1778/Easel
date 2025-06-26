@@ -1,26 +1,22 @@
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
-class Registrant {
-  Registrant();
-
-  var email = "";
-  var password = "";
-
-  bool ready() {
-    return (email != "" && password != "");
-  }
-}
+import "login.dart";
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:easel/auth.dart';
+import 'package:flutter/material.dart';
 
 class BootManager {
   BootManager();
 
   static Registrant newUser = Registrant();
 
-  static bool loginRequired = false;
+  static bool loginRequired = true;
+  static var db = FirebaseFirestore.instance;
 
   static void authListen() {
+    WidgetsFlutterBinding.ensureInitialized();
+
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         print('User is currently signed out!');
@@ -35,6 +31,7 @@ class BootManager {
         print('User is currently signed out!');
       } else {
         print('User is signed in!');
+        BootManager.loginRequired = false;
       }
     });
 
@@ -43,18 +40,20 @@ class BootManager {
         print('User is currently signed out!');
       } else {
         print('User is signed in!');
+        BootManager.loginRequired = false;
       }
     });
   }
 
-  static Future<void> boot() async {
+  static Future<bool> boot() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     print("startup complete");
-
-    //    BootManager.deleteUser();
     BootManager.authListen();
+    return true;
   }
 
   static Future<void> deleteUser() async {
@@ -64,9 +63,11 @@ class BootManager {
   }
 
   static Future<void> registerUser(String email, String pw) async {
-    print("Attempting user reg");
+    print("Attempting user reg with " + email + " and pw " + pw);
 
     try {
+      print("new account created");
+
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pw);
     } on FirebaseAuthException catch (e) {
@@ -78,5 +79,15 @@ class BootManager {
     } catch (e) {
       print(e);
     }
+    BootManager.createUserInfo();
+  }
+
+  static createUserInfo() {
+    var useruid = FirebaseAuth.instance.currentUser?.uid ?? "x";
+    final newUser = <String, dynamic>{
+      "name": BootManager.newUser.name,
+      "last": "notprovided",
+    };
+    db.collection("users").doc(useruid).set(newUser);
   }
 }
