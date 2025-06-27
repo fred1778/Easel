@@ -1,0 +1,39 @@
+import 'package:easel/auth.dart';
+import 'package:easel/homefeed.dart';
+import 'package:easel/userhome.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'login.dart';
+import 'auth.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+class TabBarFrame extends StatefulWidget {
+  const TabBarFrame({super.key, required this.tabChange});
+  final void Function(int) tabChange;
+
+  @override
+  State<StatefulWidget> createState() => TabsState();
+}
+
+class TabsState extends State<TabBarFrame> {
+  int current_index = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationBar(
+      onDestinationSelected: (int index) {
+        setState(() {
+          current_index = index;
+          widget.tabChange(index);
+        });
+      },
+      selectedIndex: current_index,
+      destinations: [
+        NavigationDestination(icon: Icon(Icons.home), label: "Home"),
+        NavigationDestination(icon: Icon(Icons.account_circle), label: "Me"),
+      ],
+    );
+  }
+}

@@ -6,13 +6,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easel/auth.dart';
 import 'package:flutter/material.dart';
 
+class UserProfile {
+  String name;
+  String id;
+
+  UserProfile(this.name, this.id);
+}
+
 class BootManager {
   BootManager();
 
-  static Registrant newUser = Registrant();
+  static UserProfile? currentUserProfile;
 
+  static Registrant newUser = Registrant();
   static bool loginRequired = true;
   static var db = FirebaseFirestore.instance;
+  static String userid = "/";
 
   static void authListen() {
     WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +31,7 @@ class BootManager {
         print('User is currently signed out!');
       } else {
         print('User is signed in!');
-        loginRequired = true;
+        loginRequired = false;
       }
     });
 
@@ -80,6 +89,22 @@ class BootManager {
       print(e);
     }
     BootManager.createUserInfo();
+  }
+
+  static getUserInfo() {
+    // Used to get user information based on user UID...
+    if (FirebaseAuth.instance.currentUser != null) {
+      BootManager.userid = FirebaseAuth.instance.currentUser!.uid;
+    }
+
+    final docRef = db.collection("users").doc(userid);
+    docRef.get().then((DocumentSnapshot doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      BootManager.currentUserProfile = UserProfile(
+        data["name"],
+        BootManager.userid,
+      );
+    }, onError: (e) => print("Error getting document: $e"));
   }
 
   static createUserInfo() {

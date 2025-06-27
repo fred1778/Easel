@@ -1,5 +1,6 @@
 import 'package:easel/auth.dart';
 import 'package:easel/homefeed.dart';
+import 'package:easel/userhome.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'login.dart';
@@ -7,6 +8,7 @@ import 'auth.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'tabbar.dart';
 
 void main() async {
   print("eeeee");
@@ -15,13 +17,27 @@ void main() async {
   runApp(const MainApp());
 }
 
-class MainApp extends StatelessWidget {
+const profileRoute = '/profile';
+
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+  @override
+  State<StatefulWidget> createState() => MainState();
+}
+
+class MainState extends State<MainApp> {
+  int tabIndex = 0;
+  void changeIndex(int newIndex) {
+    setState(() {
+      tabIndex = newIndex;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        bottomNavigationBar: TabBarFrame(tabChange: changeIndex),
         appBar: AppBar(
           title: const Text('Easel'),
           titleTextStyle: GoogleFonts.playfairDisplay(
@@ -31,24 +47,24 @@ class MainApp extends StatelessWidget {
           surfaceTintColor: Colors.white,
           centerTitle: false,
           actionsPadding: EdgeInsets.all(5),
-          actions: [
-            if (!BootManager.loginRequired)
-              Icon(Icons.account_circle_sharp, size: 45, color: Colors.black),
-          ],
         ),
-        body: Center(
-          child: () {
-            if (BootManager.loginRequired) {
-              return LoginScreen();
-            }
-            print(
-              " && homefeed for " +
-                  (FirebaseAuth.instance.currentUser?.uid ?? "d"),
-            );
-            return Homefeed();
-          }(),
-        ),
+        body: <Widget>[
+          Center(
+            child: () {
+              if (BootManager.loginRequired) {
+                return LoginScreen();
+              }
+              print(
+                " && homefeed for " +
+                    (FirebaseAuth.instance.currentUser?.uid ?? "d"),
+              );
+              return Homefeed();
+            }(),
+          ),
+          Userhome(),
+        ][tabIndex],
       ),
+      routes: {profileRoute: (context) => const Userhome()},
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'auth.dart';
 
 class ArtPiece {
   final String artist;
@@ -64,6 +65,8 @@ class Homefeed extends StatelessWidget {
   const Homefeed({super.key});
   @override
   Widget build(BuildContext context) {
+    BootManager.getUserInfo();
+
     return ListView.separated(
       padding: const EdgeInsets.all(10),
       itemCount: artworks.length,
