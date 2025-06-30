@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'auth.dart';
+import 'artworkdetail.dart';
 
 class ArtPiece {
   final String artist;
@@ -123,9 +124,7 @@ class CardTest extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(toDisplay.medium, style: GoogleFonts.playfairDisplay()),
-              Text(
-                RenderingServices.dimensions(toDisplay.height, toDisplay.width),
-              ),
+
               Spacer(),
             ],
           ),
@@ -165,50 +164,6 @@ class CardPanel extends StatelessWidget {
 }
 
 // detail
-
-class ArtWorkDetail extends StatelessWidget {
-  final ArtPiece toDisplay;
-  const ArtWorkDetail({super.key, required this.toDisplay});
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(toDisplay.title),
-        titleTextStyle: GoogleFonts.playfair(color: Colors.black, fontSize: 15),
-      ),
-      body: Center(child: ArtDetailPane(toDisplay: toDisplay)),
-    );
-  }
-}
-
-class ArtDetailPane extends StatelessWidget {
-  final ArtPiece toDisplay;
-  const ArtDetailPane({super.key, required this.toDisplay});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      // padding: EdgeInsets.all(10),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          PinchZoom(
-            child: Image(image: AssetImage(toDisplay.imgPath)),
-            maxScale: 2.5,
-            onZoomStart: () {
-              print('Start zooming');
-            },
-            onZoomEnd: () {
-              print('Stop zooming');
-            },
-          ),
-          Spacer(),
-        ],
-      ),
-    );
-  }
-}
 
 class RenderingServices {
   static String dimensions(int width, int height) {

@@ -27,6 +27,19 @@ class MainApp extends StatefulWidget {
 
 class MainState extends State<MainApp> {
   int tabIndex = 0;
+  var pageTitles = ["Easel", "Profile"];
+  var login = !BootManager.loginRequired;
+
+  void updateLoginState(bool newState) {
+    setState(() {
+      login = newState;
+    });
+    if (!login) {
+      // Snap back to first tab (which will be login/reg in this state)
+      changeIndex(0);
+    }
+  }
+
   void changeIndex(int newIndex) {
     setState(() {
       tabIndex = newIndex;
@@ -37,11 +50,13 @@ class MainState extends State<MainApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        bottomNavigationBar: TabBarFrame(tabChange: changeIndex),
+        bottomNavigationBar: login
+            ? TabBarFrame(tabChange: changeIndex)
+            : Text("-"),
         appBar: AppBar(
-          title: const Text('Easel'),
+          title: Text(pageTitles[tabIndex]),
           titleTextStyle: GoogleFonts.playfairDisplay(
-            color: Colors.black,
+            color: Colors.blueGrey,
             fontSize: 50.0,
           ),
           surfaceTintColor: Colors.white,
@@ -52,25 +67,21 @@ class MainState extends State<MainApp> {
           Center(
             child: () {
               if (BootManager.loginRequired) {
-                return LoginScreen();
+                return LoginScreen(change: updateLoginState);
               }
-              print(
-                " && homefeed for " +
-                    (FirebaseAuth.instance.currentUser?.uid ?? "d"),
-              );
               return Homefeed();
             }(),
           ),
-          Userhome(),
+          Userhome(logout: updateLoginState),
         ][tabIndex],
       ),
-      routes: {profileRoute: (context) => const Userhome()},
     );
   }
 }
 
-class StartSwitch extends StatefulWidget {
-  const StartSwitch({super.key});
+/*class StartSwitch extends StatefulWidget {
+  const StartSwitch({super.key, required this.login});
+  final void Function(bool) login;
 
   @override
   State<StartSwitch> createState() => SwitchState();
@@ -92,3 +103,4 @@ class SwitchState extends State<StartSwitch> {
     );
   }
 }
+*/

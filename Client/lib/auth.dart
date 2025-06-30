@@ -9,8 +9,10 @@ import 'package:flutter/material.dart';
 class UserProfile {
   String name;
   String id;
+  bool artist;
+  Set<String>? works;
 
-  UserProfile(this.name, this.id);
+  UserProfile(this.name, this.id, this.artist);
 }
 
 class BootManager {
@@ -29,24 +31,29 @@ class BootManager {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         print('User is currently signed out!');
+        loginRequired = true;
       } else {
         print('User is signed in!');
         loginRequired = false;
+        BootManager.getUserInfo();
       }
     });
 
     FirebaseAuth.instance.idTokenChanges().listen((User? user) {
       if (user == null) {
         print('User is currently signed out!');
+        loginRequired = true;
       } else {
         print('User is signed in!');
         BootManager.loginRequired = false;
+        BootManager.getUserInfo();
       }
     });
 
     FirebaseAuth.instance.userChanges().listen((User? user) {
       if (user == null) {
         print('User is currently signed out!');
+        BootManager.loginRequired = true;
       } else {
         print('User is signed in!');
         BootManager.loginRequired = false;
@@ -63,6 +70,10 @@ class BootManager {
     print("startup complete");
     BootManager.authListen();
     return true;
+  }
+
+  static Future<void> signout() async {
+    FirebaseAuth.instance.signOut();
   }
 
   static Future<void> deleteUser() async {
@@ -95,16 +106,17 @@ class BootManager {
     // Used to get user information based on user UID...
     if (FirebaseAuth.instance.currentUser != null) {
       BootManager.userid = FirebaseAuth.instance.currentUser!.uid;
-    }
 
-    final docRef = db.collection("users").doc(userid);
-    docRef.get().then((DocumentSnapshot doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      BootManager.currentUserProfile = UserProfile(
-        data["name"],
-        BootManager.userid,
-      );
-    }, onError: (e) => print("Error getting document: $e"));
+      final docRef = db.collection("users").doc(userid);
+      docRef.get().then((DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        BootManager.currentUserProfile = UserProfile(
+          data["name"],
+          BootManager.userid,
+          false,
+        );
+      }, onError: (e) => print("Error getting document: $e"));
+    }
   }
 
   static createUserInfo() {

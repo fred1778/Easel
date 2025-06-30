@@ -25,7 +25,8 @@ class Registrant {
 }
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final void Function(bool) change;
+  const LoginScreen({super.key, required this.change});
 
   @override
   State<LoginScreen> createState() => LoginState();
@@ -34,6 +35,7 @@ class LoginScreen extends StatefulWidget {
 class LoginState extends State<LoginScreen> {
   var type = LoginType.login;
   var complete = false;
+
   void checkLoginStatus() {
     setState(() {
       print("ddddd30003");
@@ -132,6 +134,7 @@ class LoginState extends State<LoginScreen> {
                     onPressed: () {
                       print("current context email is ${userEmail}pw $userPw");
                       BootManager.registerUser(userEmail, userPw);
+                      widget.change(true);
                       setState(() {
                         complete = true;
                       });

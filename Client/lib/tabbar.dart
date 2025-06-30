@@ -19,6 +19,7 @@ class TabBarFrame extends StatefulWidget {
 
 class TabsState extends State<TabBarFrame> {
   int current_index = 0;
+  bool enable = false;
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +32,14 @@ class TabsState extends State<TabBarFrame> {
       },
       selectedIndex: current_index,
       destinations: [
-        NavigationDestination(icon: Icon(Icons.home), label: "Home"),
-        NavigationDestination(icon: Icon(Icons.account_circle), label: "Me"),
+        NavigationDestination(
+          icon: Icon(Icons.home, color: Colors.blueGrey),
+          label: "Home",
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.account_circle, color: Colors.blueGrey),
+          label: "Me",
+        ),
       ],
     );
   }
