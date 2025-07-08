@@ -1,3 +1,5 @@
+import 'package:easel/feedmanager.dart';
+
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -69,6 +71,8 @@ class BootManager {
     );
     print("startup complete");
     BootManager.authListen();
+    //  FeedManager.getArtData();
+
     return true;
   }
 

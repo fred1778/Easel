@@ -1,18 +1,22 @@
+import 'package:easel/feedmanager.dart';
 import 'package:flutter/material.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'auth.dart';
 import 'artworkdetail.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ArtPiece {
-  final String artist;
-  final String imgPath;
-  final String title;
-  final String medium;
-  final int width;
-  final int height;
-  final int price;
-  const ArtPiece(
+  String artist;
+  String imgPath;
+  String title;
+  String medium;
+  int width;
+  int height;
+  int price;
+  String blurb;
+
+  ArtPiece(
     this.artist,
     this.imgPath,
     this.title,
@@ -20,6 +24,7 @@ class ArtPiece {
     this.width,
     this.medium,
     this.price,
+    this.blurb,
   );
 }
 
@@ -32,6 +37,7 @@ var artworks = {
     20,
     'Oil on Canvas',
     500,
+    'ss',
   ),
   ArtPiece(
     'Mark Rothko',
@@ -41,6 +47,7 @@ var artworks = {
     50,
     'Oil on canvas',
     4550,
+    'dd',
   ),
   ArtPiece(
     'John Singer Sargent',
@@ -50,6 +57,7 @@ var artworks = {
     50,
     'Oil on canvas',
     150000,
+    'ww',
   ),
   ArtPiece(
     'Alfred Sisley',
@@ -59,45 +67,88 @@ var artworks = {
     50,
     'Oil on canvas',
     680000,
+    'ww',
   ),
 };
 
-class Homefeed extends StatelessWidget {
-  const Homefeed({super.key});
+class Homefeed extends StatefulWidget {
+  bool hasLaunched = false;
+  Homefeed({super.key});
+
+  @override
+  State<StatefulWidget> createState() => HomefeedState();
+}
+
+class HomefeedState extends State<Homefeed> with AutomaticKeepAliveClientMixin {
+  int artworkCount = 0;
+
+  List<ArtPiece> artworks = [];
+  void fufillArt(List<ArtPiece> art) {
+    setState(() {
+      artworks = art;
+      artworkCount = art.length;
+    });
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
-    BootManager.getUserInfo();
-
+    print(artworks.length.toString());
+    FeedManager.getArtData(fufillArt);
+    super.build(context);
     return ListView.separated(
-      padding: const EdgeInsets.all(10),
-      itemCount: artworks.length,
+      padding: EdgeInsets.all(10),
+      itemCount: 10,
+      addAutomaticKeepAlives: true,
       itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-          onTap: () {
-            final artWork = artworks.elementAt(index);
-
-            print("tap");
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ArtWorkDetail(toDisplay: artWork),
-              ),
-            );
-          },
-          child: CardTest(toDisplay: artworks.elementAt(index)),
-        );
+        if (artworkCount > index) {
+          return GestureDetector(
+            child: CardTest(toDisplay: artworks.elementAt(index)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ArtWorkDetail(toDisplay: artworks.elementAt(index)),
+                ),
+              );
+            },
+          );
+        }
       },
-      separatorBuilder: (context, index) => SizedBox(height: 25),
+      separatorBuilder: (BuildContext context, int index) =>
+          SizedBox(height: 15),
     );
   }
 }
 
-class CardTest extends StatelessWidget {
+class CardTest extends StatefulWidget {
   final ArtPiece toDisplay;
   const CardTest({super.key, required this.toDisplay});
+  @override
+  State<StatefulWidget> createState() => CardTestState();
+}
+
+class CardTestState extends State<CardTest> with AutomaticKeepAliveClientMixin {
+  var imgFound = false;
+  var imgURL = "";
+  void updateURL(String url) {
+    if (!imgFound && mounted) {
+      setState(() {
+        imgURL = url;
+        imgFound = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+    if (!imgFound && mounted) {
+      FeedManager.getURLForPath(widget.toDisplay.imgPath, updateURL);
+    }
     return Container(
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -111,7 +162,7 @@ class CardTest extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                toDisplay.title,
+                widget.toDisplay.title,
                 style: GoogleFonts.playfairDisplay(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -123,20 +174,32 @@ class CardTest extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(toDisplay.medium, style: GoogleFonts.playfairDisplay()),
+              Text(
+                widget.toDisplay.medium,
+                style: GoogleFonts.playfairDisplay(),
+              ),
 
               Spacer(),
             ],
           ),
           SizedBox(height: 10),
-          Image(image: AssetImage(toDisplay.imgPath)),
-          SizedBox(height: 10),
+          // Image(image: AssetImage(widget.toDisplay.imgPath)),
+          if (imgFound)
+            CachedNetworkImage(
+              imageUrl: imgURL,
+              placeholder: (context, url) => CircularProgressIndicator(),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
 
+          SizedBox(height: 10),
           CardPanel(),
         ],
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class CardPanel extends StatelessWidget {

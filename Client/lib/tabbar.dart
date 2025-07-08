@@ -17,12 +17,13 @@ class TabBarFrame extends StatefulWidget {
   State<StatefulWidget> createState() => TabsState();
 }
 
-class TabsState extends State<TabBarFrame> {
+class TabsState extends State<TabBarFrame> with AutomaticKeepAliveClientMixin {
   int current_index = 0;
   bool enable = false;
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return NavigationBar(
       onDestinationSelected: (int index) {
         setState(() {
@@ -31,6 +32,7 @@ class TabsState extends State<TabBarFrame> {
         });
       },
       selectedIndex: current_index,
+
       destinations: [
         NavigationDestination(
           icon: Icon(Icons.home, color: Colors.blueGrey),
@@ -43,4 +45,8 @@ class TabsState extends State<TabBarFrame> {
       ],
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

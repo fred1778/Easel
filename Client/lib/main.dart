@@ -49,6 +49,14 @@ class MainState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        textTheme: TextTheme(
+          displayMedium: GoogleFonts.playfair(),
+          labelMedium: GoogleFonts.playfair(fontSize: 19),
+        ),
+      ),
+
       home: Scaffold(
         bottomNavigationBar: login
             ? TabBarFrame(tabChange: changeIndex)
