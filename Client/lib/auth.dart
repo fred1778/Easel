@@ -12,9 +12,10 @@ class UserProfile {
   String name;
   String id;
   bool artist;
-  Set<String>? works;
+  // Set<String>? works;
+  List<String> saved;
 
-  UserProfile(this.name, this.id, this.artist);
+  UserProfile(this.name, this.id, this.artist, this.saved);
 }
 
 class BootManager {
@@ -118,6 +119,7 @@ class BootManager {
           data["name"],
           BootManager.userid,
           false,
+          List.from(data['saved']),
         );
       }, onError: (e) => print("Error getting document: $e"));
     }
@@ -128,6 +130,7 @@ class BootManager {
     final newUser = <String, dynamic>{
       "name": BootManager.newUser.name,
       "last": "notprovided",
+      "saved": null,
     };
     db.collection("users").doc(useruid).set(newUser);
   }

@@ -20,6 +20,16 @@ class FeedManager {
   static List<ArtPiece> artFeed = [];
   static var fetchCount = 0;
 
+  static void registerArtworkSave(String artID) {
+    db
+        .collection("users")
+        .doc(BootManager.userid)
+        .update({
+          "saved": FieldValue.arrayUnion([artID]),
+        })
+        .then((value) => print("updated saved list"));
+  }
+
   static Future<void> getURLForPath(
     String path,
     Function(String) onFind,
@@ -39,7 +49,12 @@ class FeedManager {
     final useerRef = db.collection("users").doc(user_id);
     useerRef.get().then((DocumentSnapshot doc) {
       final data = doc.data() as Map<String, dynamic>;
-      UserProfile up = UserProfile(data["name"], user_id, true);
+      UserProfile up = UserProfile(
+        data["name"],
+        user_id,
+        true,
+        List.from(data["saved"]),
+      );
       fufill(up);
     });
   }

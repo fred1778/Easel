@@ -28,49 +28,6 @@ class ArtPiece {
   );
 }
 
-var artworks = {
-  ArtPiece(
-    'Johannes Vermeer',
-    'images/gwpe.jpg',
-    'The Girl with a Pearl Earring',
-    100,
-    20,
-    'Oil on Canvas',
-    500,
-    'ss',
-  ),
-  ArtPiece(
-    'Mark Rothko',
-    'images/rothko.jpg',
-    'No.61 (Rust and Blue)',
-    50,
-    50,
-    'Oil on canvas',
-    4550,
-    'dd',
-  ),
-  ArtPiece(
-    'John Singer Sargent',
-    'images/carlillilrose.jpg',
-    'Carnation Lily Lily Rose',
-    50,
-    50,
-    'Oil on canvas',
-    150000,
-    'ww',
-  ),
-  ArtPiece(
-    'Alfred Sisley',
-    'images/appleflower.jpg',
-    'Apples etc',
-    50,
-    50,
-    'Oil on canvas',
-    680000,
-    'ww',
-  ),
-};
-
 class Homefeed extends StatefulWidget {
   bool hasLaunched = false;
   Homefeed({super.key});
@@ -169,6 +126,13 @@ class CardTestState extends State<CardTest> with AutomaticKeepAliveClientMixin {
                 ),
               ),
               Spacer(),
+              IconButton(
+                onPressed: () {
+                  print("pressed");
+                  FeedManager.registerArtworkSave(widget.toDisplay.imgPath);
+                },
+                icon: Icon(Icons.bookmark),
+              ),
             ],
           ),
           Row(
@@ -183,16 +147,15 @@ class CardTestState extends State<CardTest> with AutomaticKeepAliveClientMixin {
             ],
           ),
           SizedBox(height: 10),
-          // Image(image: AssetImage(widget.toDisplay.imgPath)),
           if (imgFound)
             CachedNetworkImage(
+              fadeInDuration: Duration(seconds: 2),
+
               imageUrl: imgURL,
               placeholder: (context, url) => CircularProgressIndicator(),
               errorWidget: (context, url, error) => Icon(Icons.error),
             ),
-
           SizedBox(height: 10),
-          CardPanel(),
         ],
       ),
     );
@@ -216,11 +179,6 @@ class CardPanel extends StatelessWidget {
           size: 36,
         ),
         Spacer(),
-        Icon(
-          Icons.add_shopping_cart_sharp,
-          color: const Color.fromARGB(183, 14, 93, 109),
-          size: 36,
-        ),
       ],
     );
   }

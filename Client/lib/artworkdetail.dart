@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'homefeed.dart';
 import 'feedmanager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ArtWorkDetail extends StatelessWidget {
   final ArtPiece toDisplay;
@@ -58,59 +59,57 @@ class ArtWorkFrameState extends State<ArtWorkFrame> {
     return GestureDetector(
       onTap: toggleDisplay,
       child: Container(
-        child: PinchZoom(
-          maxScale: 2.5,
-          onZoomStart: () {
-            print('Start zooming');
-          },
-          onZoomEnd: () {
-            print('Stop zooming');
-          },
-          child: Stack(
-            children: [
-              if (imgFound)
-                CachedNetworkImage(
-                  imageUrl: imgUrl,
-                  height: 400,
-                  placeholder: (context, url) => CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                ),
-              if (textOverlay)
-                ColoredBox(
-                  color: Color(0xA9000000),
+        color: Colors.black,
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            if (imgFound)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CachedNetworkImage(
+                    imageUrl: imgUrl,
 
-                  child: Container(
-                    padding: EdgeInsets.all(6),
-
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Studio Notes",
-                              style: GoogleFonts.playfair(
-                                color: Color(0x90FFFFFF),
-                                fontSize: 40,
-                                fontStyle: FontStyle.italic,
-                              ),
+                    fit: BoxFit.fitHeight,
+                    height: 280,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ],
+              ),
+            if (textOverlay)
+              ColoredBox(
+                color: Color.fromARGB(187, 0, 0, 0),
+                child: Container(
+                  padding: EdgeInsets.all(6),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Studio Notes",
+                            style: GoogleFonts.playfair(
+                              color: Color(0x90FFFFFF),
+                              fontSize: 40,
+                              fontStyle: FontStyle.italic,
                             ),
-                          ],
-                        ),
-                        Text(
-                          widget.toDisplay.blurb,
-                          style: GoogleFonts.playfair(
-                            color: Colors.white,
-                            fontSize: 20,
                           ),
+                        ],
+                      ),
+                      Text(
+                        widget.toDisplay.blurb,
+                        style: GoogleFonts.playfair(
+                          color: Colors.white,
+                          fontSize: 20,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -201,11 +200,11 @@ class ArtInfoBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Container(
-        padding: EdgeInsets.all(8),
+        padding: EdgeInsets.all(5),
         child: Row(
           children: [
             Icon(iconName, color: Colors.blueGrey),
-            SizedBox(width: 10),
+            SizedBox(width: 8),
             Text(
               text,
               style: GoogleFonts.playfair(color: Colors.black, fontSize: 20),
@@ -264,7 +263,7 @@ class MarketPanel extends StatelessWidget {
                 onPressed: () {
                   print("purchaed art");
                 },
-                child: Text("Buy"),
+                child: Text("Buy", style: GoogleFonts.playfair(fontSize: 30)),
               ),
             ],
           ),

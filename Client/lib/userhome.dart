@@ -30,7 +30,6 @@ class Userhome extends StatelessWidget {
                   fontSize: 50.0,
                 ),
               ),
-
               Spacer(),
               OutlinedButton(
                 onPressed: () {
@@ -41,6 +40,30 @@ class Userhome extends StatelessWidget {
               ),
             ],
           ),
+          Divider(),
+
+          //TODO: turn into generic button widget for use elsehwere
+          OutlinedButton(
+            onPressed: () {
+              print("show faves");
+            },
+            child: Container(
+              padding: EdgeInsetsDirectional.only(top: 25, bottom: 25),
+              child: Row(
+                children: [
+                  Icon(Icons.bookmark),
+                  Text("Favourites"),
+                  Spacer(),
+                  Text(
+                    BootManager.currentUserProfile!.saved?.length.toString() ??
+                        "0",
+                  ),
+                  Icon(Icons.chevron_right),
+                ],
+              ),
+            ),
+          ),
+
           Spacer(),
 
           FilledButton(
@@ -55,6 +78,5 @@ class Userhome extends StatelessWidget {
         ],
       ),
     );
-    // TODO: implement build
   }
 }
