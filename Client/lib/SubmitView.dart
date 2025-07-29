@@ -14,7 +14,16 @@ import 'auth.dart';
 import 'submissionmanager.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-enum ApplicationMed { Oil, Acrylic, Pen, Goucache, Pencil }
+enum ApplicationMed {
+  Oil,
+  Acrylic,
+  Pen,
+  Goucache,
+  Pencil,
+  Sculpture,
+  Ceramics,
+  Print,
+}
 
 enum BaseMed { Canvas, Paper, Board, Wood, Glass, Photograph }
 
@@ -80,13 +89,13 @@ class SubmitView extends StatelessWidget {
     // TODO: implement build
 
     return Scaffold(
-      appBar: AppBar(title: Text("New Artwork")),
+      appBar: AppBar(title: Text("New Artwork", style: GoogleFonts.playfair())),
+      resizeToAvoidBottomInset: false,
       body: Center(
         child: Container(
           padding: EdgeInsets.all(5),
           child: Column(
-            spacing: 18,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            spacing: 10,
             children: [
               ImgPicker(
                 setFile: (imageFile) {
@@ -104,7 +113,7 @@ class SubmitView extends StatelessWidget {
                 submit: (val) {
                   blurb = val;
                 },
-                placeholder: "Anything you have to say?",
+                placeholder: "Why did you make it?",
               ),
 
               SlideSelect(
@@ -126,33 +135,40 @@ class SubmitView extends StatelessWidget {
                   mediumBase = BaseMed.values.firstWhere(
                     (element) => element.name == sel,
                   );
-                  print("******************" + mediumBase.name);
                 },
                 options: BaseMed.values,
               ),
 
               Spacer(),
-
-              ElevatedButton(
-                onPressed: () {
-                  //TODO:  really need to tidy up the flow from collection to upload
-
-                  var med = "${mediumApp.name} on ${mediumBase.name}";
-                  var int_price = price.toInt();
-
-                  var artwork = ArtPiece(
-                    "/",
-                    "/",
-                    title,
-                    40,
-                    40,
-                    med,
-                    int_price,
-                    blurb,
-                  );
-                  SubmissionManager.addImage(img!, artwork);
-                },
-                child: Text("Submit Artwork"),
+              Divider(),
+              Row(
+                children: [
+                  Spacer(),
+                  FilledButton(
+                    onPressed: () {
+                      var med = "${mediumApp.name} on ${mediumBase.name}";
+                      var int_price = price.toInt();
+                      var artwork = ArtPiece(
+                        "/",
+                        "/",
+                        title,
+                        40,
+                        40,
+                        med,
+                        int_price,
+                        blurb,
+                        [55.0393, -1.39, 0.0],
+                        "2025",
+                      );
+                      SubmissionManager.addImage(img!, artwork);
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      "Submit Artwork",
+                      style: GoogleFonts.playfair(fontSize: 20),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -175,6 +191,7 @@ class EaselInput extends StatelessWidget {
       onSubmitted: (String value) {
         submit(value);
       },
+
       obscureText: false,
       decoration: InputDecoration(
         border: OutlineInputBorder(
@@ -212,7 +229,9 @@ class ChipSelectState<T extends Enum> extends State<ChipSelector> {
       spacing: 4,
       children: List.generate(widget.options.length, (index) {
         return ChoiceChip(
-          label: Text(widget.options[index].name),
+          label: Text(
+            RenderingServices.underscoreToSpace(widget.options[index].name),
+          ),
           selected: selected == index,
           onSelected: (bool val) {
             widget.update(widget.options[index].name);
@@ -230,19 +249,31 @@ class SlideState extends State<SlideSelect> {
   @override
   double val = 5.0;
   Widget build(BuildContext context) {
-    return Slider(
-      activeColor: Colors.blueGrey,
-      label: "£" + val.toInt().toString(),
-      divisions: 99,
-      value: val,
-      min: 5,
-      max: 500,
-      onChanged: (value) {
-        setState(() {
-          val = value;
-          widget.change(val);
-        });
-      },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(5),
+          child: Text(
+            "Price £" + val.toInt().toString(),
+            style: GoogleFonts.playfair(fontSize: 20),
+          ),
+        ),
+        Slider(
+          activeColor: Colors.blueGrey,
+          label: "£" + val.toInt().toString(),
+          divisions: 99,
+          value: val,
+          min: 5,
+          max: 500,
+          onChanged: (value) {
+            setState(() {
+              val = value;
+              widget.change(val);
+            });
+          },
+        ),
+      ],
     );
   }
 }

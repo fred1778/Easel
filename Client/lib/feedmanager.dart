@@ -20,14 +20,27 @@ class FeedManager {
   static List<ArtPiece> artFeed = [];
   static var fetchCount = 0;
 
-  static void registerArtworkSave(String artID) {
-    db
-        .collection("users")
-        .doc(BootManager.userid)
-        .update({
-          "saved": FieldValue.arrayUnion([artID]),
-        })
-        .then((value) => print("updated saved list"));
+  static void registerArtworkSave(String artID, bool isDelete) {
+    // art is already in saved, remove it
+    var baseRef = db.collection("users").doc(BootManager.userid);
+
+    if (isDelete) {
+      baseRef
+          .update({
+            "saved": FieldValue.arrayRemove([artID]),
+          })
+          .then((value) {
+            print("removed from user SL");
+          });
+    } else {
+      baseRef
+          .update({
+            "saved": FieldValue.arrayUnion([artID]),
+          })
+          .then((value) {
+            print("added to user SL");
+          });
+    }
   }
 
   static Future<void> getURLForPath(
@@ -37,7 +50,8 @@ class FeedManager {
     final imgRef = imgStorageRoot.child(path);
     await imgRef.getDownloadURL().then((ref) {
       fetchCount++;
-      print("*********" + fetchCount.toString());
+      print("*********" + fetchCount.toString() + "  " + ref);
+
       onFind(ref);
     });
   }
@@ -59,9 +73,94 @@ class FeedManager {
     });
   }
 
+  static ArtPiece parseArtPiece(
+    QueryDocumentSnapshot<Map<String, dynamic>>? artDataQuery,
+    DocumentSnapshot<Object?>? docObject,
+  ) {
+    Map<String, dynamic> dataMap;
+    String id;
+
+    if (docObject != null) {
+      dataMap = docObject.data() as Map<String, dynamic>;
+      id = docObject.id;
+    } else {
+      dataMap = artDataQuery!.data();
+      id = artDataQuery.id;
+    }
+
+    return ArtPiece(
+      dataMap["artist"],
+      id,
+      dataMap["title"],
+      dataMap["height"],
+      dataMap["width"],
+      dataMap["medium"],
+      dataMap["price"],
+      dataMap["blurb"],
+      List<num>.from(dataMap["geoloc"]),
+      dataMap["year"],
+    );
+  }
+
+  static void parseToArtPieceCollection(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+    List<ArtPiece> collection,
+  ) {
+    for (var docSnap in docs) {
+      print("adding art");
+      collection.add(FeedManager.parseArtPiece(docSnap, null));
+      ;
+    }
+  }
+
+  static void getUserArt(void Function(List<ArtPiece>) complete) {
+    // use .where() for filtering
+    List<ArtPiece> userArt = [];
+
+    db
+        .collection("artworks")
+        .where("artist", isEqualTo: BootManager.userid)
+        .get()
+        .then(
+          (querySnapshot) {
+            FeedManager.parseToArtPieceCollection(querySnapshot.docs, userArt);
+            complete(userArt);
+          },
+          onError: (error) {
+            throw error;
+          },
+        );
+  }
+
+  // need to combine some of these as these funcs are very similar
+  static void getShortlistForUser(void Function(List<ArtPiece>) complete) {
+    List<ArtPiece> shortlist = [];
+    var count = 0;
+
+    for (var artPiece in BootManager.currentUserProfile!.saved) {
+      db
+          .collection("artworks")
+          .doc(artPiece)
+          .get()
+          .then(
+            (DocumentSnapshot doc) {
+              count++;
+              print("SL for user - item " + count.toString());
+
+              shortlist.add(FeedManager.parseArtPiece(null, doc));
+              complete(shortlist);
+            },
+            onError: (error) {
+              print(error.toString());
+            },
+          );
+    }
+  }
+
   // Get all the artwork entries and then enrich with images
   static void getArtData(void Function(List<ArtPiece>) complete) {
     // use .where() for filtering
+
     if (artFeed.isEmpty) {
       print("getting art");
       db
@@ -69,23 +168,11 @@ class FeedManager {
           .get()
           .then(
             (querySnapshot) {
-              for (var docSnap in querySnapshot.docs) {
-                var dataMap = docSnap.data();
-                print("adding art");
-                artFeed.add(
-                  ArtPiece(
-                    dataMap["artist"],
-                    docSnap.id,
-                    dataMap["title"],
-                    dataMap["height"],
-                    dataMap["width"],
-                    dataMap["medium"],
-                    dataMap["price"],
-                    dataMap["blurb"],
-                  ),
-                );
-                complete(artFeed);
-              }
+              FeedManager.parseToArtPieceCollection(
+                querySnapshot.docs,
+                artFeed,
+              );
+              complete(artFeed);
             },
             onError: (error) {
               throw error;

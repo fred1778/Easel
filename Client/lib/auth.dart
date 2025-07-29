@@ -12,22 +12,25 @@ class UserProfile {
   String name;
   String id;
   bool artist;
-  // Set<String>? works;
+  // Shortlist (string of artwork IDs)
   List<String> saved;
-
   UserProfile(this.name, this.id, this.artist, this.saved);
+
+  bool artInSortlist(String artID) {
+    return saved.contains(artID);
+  }
 }
 
 class BootManager {
   BootManager();
 
   static UserProfile? currentUserProfile;
-
   static Registrant newUser = Registrant();
   static bool loginRequired = true;
   static var db = FirebaseFirestore.instance;
   static String userid = "/";
 
+  // Calls listenining methoids on the the Auth instance for state etc.
   static void authListen() {
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -64,21 +67,26 @@ class BootManager {
     });
   }
 
+  // Performs initialisation of Firebase and starts listening
   static Future<bool> boot() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print("startup complete");
     BootManager.authListen();
-    //  FeedManager.getArtData();
-
     return true;
   }
 
   static Future<void> signout() async {
     FirebaseAuth.instance.signOut();
+  }
+
+  static upgradeToArtist() {
+    // would take additional fields needed to enrich profile
+    currentUserProfile!.artist = true;
+
+    db.collection("users").doc(BootManager.userid).update({"artist": true});
   }
 
   static Future<void> deleteUser() async {
@@ -87,12 +95,10 @@ class BootManager {
     }
   }
 
+  // Called when user submits registration form
+
   static Future<void> registerUser(String email, String pw) async {
-    print("Attempting user reg with " + email + " and pw " + pw);
-
     try {
-      print("new account created");
-
       final credential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: pw);
     } on FirebaseAuthException catch (e) {
@@ -107,10 +113,13 @@ class BootManager {
     BootManager.createUserInfo();
   }
 
+  // Takes uid from FBA crediential and uses it to fetch user information from firestore users collection, setting the global
+  // userprofile to the parsed response
   static getUserInfo() {
-    // Used to get user information based on user UID...
     if (FirebaseAuth.instance.currentUser != null) {
       BootManager.userid = FirebaseAuth.instance.currentUser!.uid;
+
+      // use cust metadata for when account created
 
       final docRef = db.collection("users").doc(userid);
       docRef.get().then((DocumentSnapshot doc) {
@@ -118,19 +127,21 @@ class BootManager {
         BootManager.currentUserProfile = UserProfile(
           data["name"],
           BootManager.userid,
-          false,
+          data["artist"],
           List.from(data['saved']),
         );
       }, onError: (e) => print("Error getting document: $e"));
     }
   }
 
+  // For new users, creates a new user info object in firestore users collection
   static createUserInfo() {
     var useruid = FirebaseAuth.instance.currentUser?.uid ?? "x";
     final newUser = <String, dynamic>{
       "name": BootManager.newUser.name,
       "last": "notprovided",
-      "saved": null,
+      "artist": false,
+      "saved": [],
     };
     db.collection("users").doc(useruid).set(newUser);
   }

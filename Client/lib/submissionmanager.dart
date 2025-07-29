@@ -1,3 +1,4 @@
+import 'package:easel/feedmanager.dart';
 import 'package:easel/homefeed.dart';
 
 import 'firebase_options.dart';
@@ -44,9 +45,13 @@ class SubmissionManager {
       "blurb": artdata.blurb,
       "status": "available",
       "uploaded": timestamp,
+      "geoloc": artdata.geoloc,
+      "year": artdata.year,
     };
     db.collection("artworks").doc(path).set(newArtworkRecord);
   }
+
+  // ref coords bristol 51.454010303118345, -2.6006883211148932
 
   static Future<void> uploadFile(
     File img,
@@ -63,5 +68,6 @@ class SubmissionManager {
     }
     // register artwork info
     SubmissionManager.createArtworkRecord(path, artwork);
+    // pre-emptivley update feeds - is this ineffecient? Want one centralised array that different feeds can draw from, fetching new data if needed
   }
 }

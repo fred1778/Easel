@@ -1,4 +1,5 @@
 import 'package:easel/auth.dart';
+import 'package:easel/discoverhome.dart';
 import 'package:easel/homefeed.dart';
 import 'package:easel/userhome.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'tabbar.dart';
+import 'discoverhome.dart';
 
 void main() async {
   print("eeeee");
@@ -27,7 +29,7 @@ class MainApp extends StatefulWidget {
 
 class MainState extends State<MainApp> {
   int tabIndex = 0;
-  var pageTitles = ["Easel", "Profile"];
+  var pageTitles = ["Easel", "Discover", "My Studio"];
   var login = !BootManager.loginRequired;
 
   void updateLoginState(bool newState) {
@@ -80,35 +82,10 @@ class MainState extends State<MainApp> {
               return Homefeed();
             }(),
           ),
+          Discoverhome(),
           Userhome(logout: updateLoginState),
         ][tabIndex],
       ),
     );
   }
 }
-
-/*class StartSwitch extends StatefulWidget {
-  const StartSwitch({super.key, required this.login});
-  final void Function(bool) login;
-
-  @override
-  State<StartSwitch> createState() => SwitchState();
-}
-
-class SwitchState extends State<StartSwitch> {
-  var loggedIn = false;
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    return Container(
-      child: () {
-        if (loggedIn) {
-          return Homefeed();
-        }
-        return LoginScreen();
-      }(),
-    );
-  }
-}
-*/

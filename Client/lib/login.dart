@@ -10,6 +10,8 @@ import 'auth.dart';
 
 enum LoginType { register, login }
 
+enum UserType { artist, browser }
+
 class Registrant {
   Registrant();
 
@@ -46,6 +48,7 @@ class LoginState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     var userEmail = "";
     var userPw = "";
+    UserType userType = UserType.browser;
 
     return Container(
       padding: EdgeInsets.all(10),
@@ -53,6 +56,7 @@ class LoginState extends State<LoginScreen> {
         if (!complete) {
           return Column(
             mainAxisAlignment: MainAxisAlignment.center,
+
             children: [
               SizedBox(height: 35),
 
@@ -95,9 +99,9 @@ class LoginState extends State<LoginScreen> {
 
               TextField(
                 style: GoogleFonts.playfair(),
+
                 onSubmitted: (String value) {
                   print(value);
-
                   userEmail = value;
                 },
 

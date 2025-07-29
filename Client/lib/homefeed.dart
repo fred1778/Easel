@@ -1,10 +1,12 @@
 import 'package:easel/feedmanager.dart';
+import 'package:easel/genericlist.dart';
 import 'package:flutter/material.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'auth.dart';
 import 'artworkdetail.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'genericlist.dart';
 
 class ArtPiece {
   String artist;
@@ -15,6 +17,8 @@ class ArtPiece {
   int height;
   int price;
   String blurb;
+  String year;
+  List<num> geoloc;
 
   ArtPiece(
     this.artist,
@@ -25,6 +29,8 @@ class ArtPiece {
     this.medium,
     this.price,
     this.blurb,
+    this.geoloc,
+    this.year,
   );
 }
 
@@ -37,47 +43,14 @@ class Homefeed extends StatefulWidget {
 }
 
 class HomefeedState extends State<Homefeed> with AutomaticKeepAliveClientMixin {
-  int artworkCount = 0;
-
-  List<ArtPiece> artworks = [];
-  void fufillArt(List<ArtPiece> art) {
-    setState(() {
-      artworks = art;
-      artworkCount = art.length;
-    });
-  }
-
   @override
   bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    print(artworks.length.toString());
-    FeedManager.getArtData(fufillArt);
     super.build(context);
-    return ListView.separated(
-      padding: EdgeInsets.all(10),
-      itemCount: 10,
-      addAutomaticKeepAlives: true,
-      itemBuilder: (BuildContext context, int index) {
-        if (artworkCount > index) {
-          return GestureDetector(
-            child: CardTest(toDisplay: artworks.elementAt(index)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      ArtWorkDetail(toDisplay: artworks.elementAt(index)),
-                ),
-              );
-            },
-          );
-        }
-      },
-      separatorBuilder: (BuildContext context, int index) =>
-          SizedBox(height: 15),
-    );
+
+    return GenericFeed();
   }
 }
 
@@ -91,6 +64,9 @@ class CardTest extends StatefulWidget {
 class CardTestState extends State<CardTest> with AutomaticKeepAliveClientMixin {
   var imgFound = false;
   var imgURL = "";
+  var isShortlisted = false;
+  var startStateFound = false;
+
   void updateURL(String url) {
     if (!imgFound && mounted) {
       setState(() {
@@ -103,6 +79,18 @@ class CardTestState extends State<CardTest> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    setState(() {
+      if (!startStateFound) {
+        isShortlisted =
+            BootManager.currentUserProfile?.artInSortlist(
+              widget.toDisplay.imgPath,
+            ) ??
+            false;
+
+        startStateFound = true;
+      }
+    });
+
     if (!imgFound && mounted) {
       FeedManager.getURLForPath(widget.toDisplay.imgPath, updateURL);
     }
@@ -116,22 +104,52 @@ class CardTestState extends State<CardTest> with AutomaticKeepAliveClientMixin {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
-              Text(
-                widget.toDisplay.title,
-                style: GoogleFonts.playfairDisplay(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Container(
+                width: 300,
+                child: Flexible(
+                  flex: 6,
+                  child: Text(
+                    widget.toDisplay.title,
+                    maxLines: 3,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-              Spacer(),
+              Spacer(flex: 2),
+
               IconButton(
                 onPressed: () {
-                  print("pressed");
-                  FeedManager.registerArtworkSave(widget.toDisplay.imgPath);
+                  setState(() {
+                    print("art in SL: " + isShortlisted.toString());
+
+                    FeedManager.registerArtworkSave(
+                      widget.toDisplay.imgPath,
+                      isShortlisted,
+                    );
+                    isShortlisted = !isShortlisted;
+                  });
+
+                  // Calling here to make sure new SL data is propogated
+                  BootManager.getUserInfo();
                 },
-                icon: Icon(Icons.bookmark),
+
+                icon: isShortlisted
+                    ? Icon(
+                        Icons.bookmark,
+                        color: const Color.fromARGB(255, 232, 119, 7),
+                        size: 30,
+                      )
+                    : Icon(
+                        Icons.bookmark_border,
+                        color: const Color.fromARGB(255, 163, 140, 118),
+                        size: 30,
+                      ),
               ),
             ],
           ),
@@ -165,28 +183,10 @@ class CardTestState extends State<CardTest> with AutomaticKeepAliveClientMixin {
   bool get wantKeepAlive => true;
 }
 
-class CardPanel extends StatelessWidget {
-  const CardPanel({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Icon(
-          Icons.add_circle_sharp,
-          color: const Color.fromARGB(148, 173, 71, 24),
-          size: 36,
-        ),
-        Spacer(),
-      ],
-    );
-  }
-}
-
-// detail
-
 class RenderingServices {
+  //Used to get readable multi-word labeles for enums
+  static String underscoreToSpace(String str) => str.replaceAll("_", " ");
+
   static String dimensions(int width, int height) {
     return width.toString() + " x " + height.toString();
   }

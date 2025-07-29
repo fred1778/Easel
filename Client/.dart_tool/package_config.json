@@ -8,10 +8,22 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "args",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/args-2.7.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "async",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/async-2.13.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "benchmark",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/benchmark-0.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "boolean_selector",
@@ -86,10 +98,16 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "csslib",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/csslib-1.0.2",
+      "name": "dart_sort_queue",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/dart_sort_queue-0.0.2+3",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "dbus",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/dbus-0.7.11",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "fake_async",
@@ -230,52 +248,70 @@
       "languageVersion": "3.7"
     },
     {
+      "name": "geoclue",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geoclue-0.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
+      "name": "geolocator",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geolocator-14.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geolocator_android",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geolocator_android-5.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geolocator_apple",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geolocator_apple-2.3.13",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geolocator_linux",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geolocator_linux-0.2.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geolocator_platform_interface",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geolocator_platform_interface-4.2.6",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geolocator_web",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geolocator_web-4.1.3",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geolocator_windows",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geolocator_windows-0.2.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "geotypes",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/geotypes-0.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "google_fonts",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/google_fonts-6.2.1",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
     {
-      "name": "google_maps",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/google_maps-8.1.1",
+      "name": "gsettings",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/gsettings-0.2.8",
       "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "google_maps_flutter",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/google_maps_flutter-2.12.3",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "google_maps_flutter_android",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/google_maps_flutter_android-2.16.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "google_maps_flutter_ios",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/google_maps_flutter_ios-2.15.4",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "google_maps_flutter_platform_interface",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/google_maps_flutter_platform_interface-2.12.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "google_maps_flutter_web",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/google_maps_flutter_web-0.5.12+2",
-      "packageUri": "lib/",
-      "languageVersion": "3.6"
-    },
-    {
-      "name": "html",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/html-0.15.6",
-      "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "2.12"
     },
     {
       "name": "http",
@@ -338,6 +374,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "json_annotation",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/leak_tracker-10.0.9",
       "packageUri": "lib/",
@@ -360,6 +402,12 @@
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/lints-5.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.6"
+    },
+    {
+      "name": "mapbox_maps_flutter",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/mapbox_maps_flutter-2.9.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "matcher",
@@ -390,6 +438,18 @@
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/octo_image-2.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
+    },
+    {
+      "name": "package_info_plus",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/package_info_plus-8.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "package_info_plus_platform_interface",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/package_info_plus_platform_interface-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
     },
     {
       "name": "path",
@@ -434,6 +494,48 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "permission_handler",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/permission_handler-12.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "permission_handler_android",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/permission_handler_android-13.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "permission_handler_apple",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/permission_handler_apple-9.4.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "permission_handler_html",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/permission_handler_html-0.1.3+5",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "permission_handler_platform_interface",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/permission_handler_platform_interface-4.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "permission_handler_windows",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/permission_handler_windows-0.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "petitparser",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/petitparser-6.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
       "name": "pinch_zoom",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/pinch_zoom-2.0.1",
       "packageUri": "lib/",
@@ -452,16 +554,22 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "rbush",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/rbush-1.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "rxdart",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/rxdart-0.28.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
     {
-      "name": "sanitize_html",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/sanitize_html-2.1.0",
+      "name": "sane_uuid",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/sane_uuid-1.0.0-alpha.5",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.0"
     },
     {
       "name": "sky_engine",
@@ -524,16 +632,16 @@
       "languageVersion": "3.3"
     },
     {
-      "name": "stream_transform",
-      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/stream_transform-2.1.1",
-      "packageUri": "lib/",
-      "languageVersion": "3.1"
-    },
-    {
       "name": "string_scanner",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/string_scanner-1.4.1",
       "packageUri": "lib/",
       "languageVersion": "3.1"
+    },
+    {
+      "name": "sweepline_intersections",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/sweepline_intersections-0.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "synchronized",
@@ -552,6 +660,24 @@
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/test_api-0.7.4",
       "packageUri": "lib/",
       "languageVersion": "3.5"
+    },
+    {
+      "name": "turf",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/turf-0.0.10",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "turf_equality",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/turf_equality-0.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "turf_pip",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/turf_pip-0.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "typed_data",
@@ -584,10 +710,22 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "win32",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/win32-5.14.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.8"
+    },
+    {
       "name": "xdg_directories",
       "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/xdg_directories-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "xml",
+      "rootUri": "file:///Users/fredclamp-gray/.pub-cache/hosted/pub.dev/xml-6.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
     },
     {
       "name": "easel",
@@ -599,6 +737,6 @@
   "generator": "pub",
   "generatorVersion": "3.8.1",
   "flutterRoot": "file:///Users/fredclamp-gray/FlutterDev/flutter",
-  "flutterVersion": "3.32.5",
+  "flutterVersion": "3.32.7",
   "pubCache": "file:///Users/fredclamp-gray/.pub-cache"
 }

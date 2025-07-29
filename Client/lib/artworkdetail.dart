@@ -1,11 +1,11 @@
 import 'package:easel/auth.dart';
+import 'package:easel/geosnapper.dart';
 import 'package:flutter/material.dart';
 import 'package:pinch_zoom/pinch_zoom.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'homefeed.dart';
 import 'feedmanager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class ArtWorkDetail extends StatelessWidget {
   final ArtPiece toDisplay;
@@ -16,7 +16,7 @@ class ArtWorkDetail extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("About this Artwork"),
-        titleTextStyle: GoogleFonts.playfair(color: Colors.black, fontSize: 20),
+        titleTextStyle: GoogleFonts.playfair(color: Colors.black, fontSize: 25),
       ),
       body: Center(child: ArtDetailPane(toDisplay: toDisplay)),
     );
@@ -67,13 +67,16 @@ class ArtWorkFrameState extends State<ArtWorkFrame> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CachedNetworkImage(
-                    imageUrl: imgUrl,
+                  Flexible(
+                    child: CachedNetworkImage(
+                      imageUrl: imgUrl,
 
-                    fit: BoxFit.fitHeight,
-                    height: 280,
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                      fit: BoxFit.fitHeight,
+                      height: 320,
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    ),
                   ),
                 ],
               ),
@@ -149,37 +152,54 @@ class ArtPaneState extends State<ArtDetailPane> {
             children: [
               Row(
                 children: [
-                  Text(
-                    widget.toDisplay.title,
-                    style: GoogleFonts.playfair(
-                      color: Colors.black,
-                      fontSize: 30,
-                      fontStyle: FontStyle.italic,
+                  Flexible(
+                    flex: 6,
+                    child: Text(
+                      widget.toDisplay.title,
+                      style: GoogleFonts.playfair(
+                        color: Colors.black,
+                        fontSize: 30,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ),
                   Spacer(),
                 ],
               ),
               Row(
+                spacing: 10,
                 children: [
                   if (artistInfoFetched)
                     Text(
                       user?.name ?? "d",
                       style: GoogleFonts.playfair(
                         color: Colors.black,
-                        fontSize: 20,
+                        fontSize: 22,
                       ),
                     ),
-                  Divider(),
+                  Text("●"),
+                  Text(
+                    widget.toDisplay.year,
+                    style: GoogleFonts.playfair(
+                      color: Colors.black,
+                      fontSize: 22,
+                    ),
+                  ),
                   Spacer(),
                 ],
               ),
               Divider(),
               ArtInfoPanel(artwork: widget.toDisplay),
+              //  Geosnap(widget.toDisplay),
             ],
           ),
         ),
 
+        /* GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: LatLng(51.999407, -2.903035),
+          ),
+        ),*/
         Spacer(),
         MarketPanel(artwork: widget.toDisplay),
       ],
@@ -223,14 +243,14 @@ class ArtInfoPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      spacing: 18,
       children: [
         ArtInfoBox(
           iconName: Icons.aspect_ratio,
           text: RenderingServices.dimensions(artwork.width, artwork.height),
         ),
         ArtInfoBox(iconName: Icons.palette, text: artwork.medium),
-
-        ArtInfoBox(iconName: Icons.calendar_today, text: "2019"),
+        Spacer(),
       ],
     );
   }
@@ -244,12 +264,11 @@ class MarketPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.blueGrey),
-          borderRadius: BorderRadius.circular(10),
-        ),
+      padding: EdgeInsets.all(5),
+      child: Card(
+        shadowColor: const Color.fromARGB(255, 37, 38, 39),
+        elevation: 1.3,
+
         child: Container(
           padding: EdgeInsets.all(10),
           child: Row(

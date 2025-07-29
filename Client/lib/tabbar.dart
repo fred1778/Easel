@@ -35,12 +35,17 @@ class TabsState extends State<TabBarFrame> with AutomaticKeepAliveClientMixin {
 
       destinations: [
         NavigationDestination(
-          icon: Icon(Icons.home, color: Colors.blueGrey),
-          label: "Home",
+          icon: Icon(Icons.home, color: Colors.blueGrey, size: 30),
+          label: "Gallery",
+        ),
+
+        NavigationDestination(
+          icon: Icon(Icons.map_sharp, color: Colors.blueGrey, size: 30),
+          label: "Discover",
         ),
         NavigationDestination(
-          icon: Icon(Icons.account_circle, color: Colors.blueGrey),
-          label: "Me",
+          icon: Icon(Icons.account_circle, color: Colors.blueGrey, size: 30),
+          label: "My Studio",
         ),
       ],
     );
