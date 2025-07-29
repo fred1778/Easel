@@ -32,8 +32,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - images/carlillilrose.jpg
-    - images/appleflower.jpg
-    - images/rothko.jpg
-    - images/gwpe.jpg
     - images/trimark3.png
+    - images/map_mark.png
+    - images/mm3.png

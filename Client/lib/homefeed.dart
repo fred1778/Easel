@@ -49,8 +49,7 @@ class HomefeedState extends State<Homefeed> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    return GenericFeed();
+    return Stack(children: [GenericFeed(), Text("search")]);
   }
 }
 

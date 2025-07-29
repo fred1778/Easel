@@ -1,3 +1,4 @@
+import 'package:easel/coordinateselector.dart';
 import 'package:easel/homefeed.dart';
 import 'dart:io';
 
@@ -75,14 +76,23 @@ class ImgPickerState extends State<ImgPicker> {
   }
 }
 
-class SubmitView extends StatelessWidget {
+class SubmitView extends StatefulWidget {
   SubmitView({super.key});
+
+  @override
+  State<StatefulWidget> createState() => SubmitViewState();
+}
+
+class SubmitViewState extends State<SubmitView> {
   var title = "";
   var blurb = "";
   var price = 100.0;
   var mediumApp = ApplicationMed.values.first;
   var mediumBase = BaseMed.values.first;
   File? img;
+  var progress = 1;
+
+  ArtSubmissionData newArt = ArtSubmissionData();
 
   @override
   Widget build(BuildContext context) {
@@ -97,76 +107,33 @@ class SubmitView extends StatelessWidget {
           child: Column(
             spacing: 10,
             children: [
-              ImgPicker(
-                setFile: (imageFile) {
-                  img = imageFile;
-                },
-              ),
-              EaselInput(
-                submit: (str) {
-                  title = str;
-                },
-                placeholder: "What's this piece of art called?",
-              ),
+              LinearProgressIndicator(value: progress / 2),
+              if (progress == 1)
+                Expanded(child: SubmitSheetA(newArt: newArt))
+              else
+                Expanded(child: SubmitSheetB(newArt: newArt)),
 
-              EaselInput(
-                submit: (val) {
-                  blurb = val;
-                },
-                placeholder: "Why did you make it?",
-              ),
-
-              SlideSelect(
-                change: (val) {
-                  price = val;
-                },
-              ),
-
-              ChipSelector<ApplicationMed>(
-                update: (sel) {
-                  mediumApp = ApplicationMed.values.firstWhere(
-                    (element) => element.name == sel,
-                  );
-                },
-                options: ApplicationMed.values,
-              ),
-              ChipSelector<BaseMed>(
-                update: (sel) {
-                  mediumBase = BaseMed.values.firstWhere(
-                    (element) => element.name == sel,
-                  );
-                },
-                options: BaseMed.values,
-              ),
-
-              Spacer(),
-              Divider(),
               Row(
                 children: [
+                  if (progress == 2)
+                    FilledButton.tonal(
+                      onPressed: () {
+                        setState(() {
+                          progress--;
+                        });
+                      },
+                      child: Text("Back"),
+                    ),
                   Spacer(),
                   FilledButton(
                     onPressed: () {
-                      var med = "${mediumApp.name} on ${mediumBase.name}";
-                      var int_price = price.toInt();
-                      var artwork = ArtPiece(
-                        "/",
-                        "/",
-                        title,
-                        40,
-                        40,
-                        med,
-                        int_price,
-                        blurb,
-                        [55.0393, -1.39, 0.0],
-                        "2025",
-                      );
-                      SubmissionManager.addImage(img!, artwork);
-                      Navigator.pop(context);
+                      if (progress == 1) {
+                        setState(() {
+                          progress++;
+                        });
+                      } else {}
                     },
-                    child: Text(
-                      "Submit Artwork",
-                      style: GoogleFonts.playfair(fontSize: 20),
-                    ),
+                    child: Text(progress == 1 ? "Next" : "Submit"),
                   ),
                 ],
               ),
@@ -181,8 +148,14 @@ class SubmitView extends StatelessWidget {
 class EaselInput extends StatelessWidget {
   final void Function(String) submit;
   final String placeholder;
+  final double? xRestrict;
 
-  EaselInput({super.key, required this.submit, required this.placeholder});
+  EaselInput({
+    super.key,
+    required this.submit,
+    required this.placeholder,
+    this.xRestrict,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +166,12 @@ class EaselInput extends StatelessWidget {
       },
 
       obscureText: false,
+
       decoration: InputDecoration(
+        constraints: (xRestrict != null)
+            ? BoxConstraints(maxWidth: xRestrict!)
+            : null,
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(20)),
         ),
@@ -277,3 +255,157 @@ class SlideState extends State<SlideSelect> {
     );
   }
 }
+
+class SubmitSheetB extends StatelessWidget {
+  ArtSubmissionData newArt;
+  SubmitSheetB({super.key, required this.newArt});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        spacing: 15,
+        children: [
+          Row(
+            children: [
+              Text("Where is it?"),
+              Spacer(),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Coordinateselector(artData: newArt),
+                    ),
+                  );
+                },
+                child: Text("Select on Map"),
+              ),
+            ],
+          ),
+
+          Row(children: [Text("Dimensions"), Spacer()]),
+          Row(
+            spacing: 15,
+            children: [
+              EaselInput(
+                submit: ((v) {
+                  print(v);
+                }),
+                placeholder: "Width",
+                xRestrict: 100,
+              ),
+              EaselInput(
+                submit: ((v) {
+                  print(v);
+                }),
+                placeholder: "Height",
+                xRestrict: 120,
+              ),
+              if (newArt.mediumApp == ApplicationMed.Ceramics ||
+                  newArt.mediumApp == ApplicationMed.Sculpture)
+                EaselInput(
+                  submit: ((v) {
+                    print(v);
+                  }),
+                  placeholder: "Depth",
+                  xRestrict: 120,
+                ),
+              Spacer(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SubmitSheetA extends StatelessWidget {
+  ArtSubmissionData newArt;
+  SubmitSheetA({required this.newArt});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          ImgPicker(
+            setFile: (imageFile) {
+              newArt.img = imageFile;
+            },
+          ),
+          EaselInput(
+            submit: (str) {
+              newArt.title = str;
+            },
+            placeholder: "What's this piece of art called?",
+          ),
+
+          EaselInput(
+            submit: (val) {
+              newArt.blurb = val;
+            },
+            placeholder: "Why did you make it?",
+          ),
+
+          SlideSelect(
+            change: (val) {
+              newArt.price = val;
+            },
+          ),
+
+          ChipSelector<ApplicationMed>(
+            update: (sel) {
+              newArt.mediumApp = ApplicationMed.values.firstWhere(
+                (element) => element.name == sel,
+              );
+            },
+            options: ApplicationMed.values,
+          ),
+          ChipSelector<BaseMed>(
+            update: (sel) {
+              newArt.mediumBase = BaseMed.values.firstWhere(
+                (element) => element.name == sel,
+              );
+            },
+            options: BaseMed.values,
+          ),
+
+          Spacer(),
+          Divider(),
+          Row(children: [Spacer()]),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+
+
+ /*  FilledButton(
+                    onPressed: () {
+                      var med = "${mediumApp.name} on ${mediumBase.name}";
+                      var int_price = price.toInt();
+                      var artwork = ArtPiece(
+                        "/",
+                        "/",
+                        title,
+                        40,
+                        40,
+                        med,
+                        int_price,
+                        blurb,
+                        [55.0393, -1.39, 0.0],
+                        "2025",
+                      );
+                      SubmissionManager.addImage(img!, artwork);
+                      Navigator.pop(context);
+                      setState(() {});
+                    },
+                    child: Text(
+                      "Submit Artwork",
+                      style: GoogleFonts.playfair(fontSize: 20),
+                    ),
+                  ),*/

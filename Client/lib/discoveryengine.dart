@@ -59,7 +59,7 @@ class DiscoveryEngine {
   }
 
   void markerImgData() async {
-    final ByteData bd = await rootBundle.load("images/trimark3.png");
+    final ByteData bd = await rootBundle.load("images/mm3.png");
     this.marker = bd.buffer.asUint8List();
   }
 
@@ -69,13 +69,19 @@ class DiscoveryEngine {
 
     for (var artwork in FeedManager.artFeed) {
       var dd = PointAnnotationOptions(
-        iconSize: 10.0,
-        textSize: 20,
+        iconSize: 1.2,
+
+        textSize: 12,
+        textColor: Colors.white.toARGB32(),
+        textOffset: [0, 1.2],
+        textOpacity: 1.0,
         textField: artwork.title,
         geometry: Point(
           coordinates: Position(artwork.geoloc[1], artwork.geoloc[0]),
         ),
-        //  image: this.marker!,
+        image: this.marker!,
+        iconOpacity: 1,
+        iconEmissiveStrength: 1,
       );
       artPoints.add(dd);
     }
@@ -90,7 +96,7 @@ class DiscoveryEngine {
         center: Point(
           coordinates: Position(userPos!.longitude, userPos!.latitude),
         ),
-        zoom: 10.0,
+        zoom: 15.0,
       );
       onComplete(true);
     });

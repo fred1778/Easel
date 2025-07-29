@@ -10,8 +10,21 @@ import 'package:easel/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
+import 'SubmitView.dart';
 
 // Handles submitting images to the backend
+class ArtSubmissionData {
+  var title = "";
+  var blurb = "";
+  var price = 100.0;
+  var mediumApp = ApplicationMed.values.first;
+  var mediumBase = BaseMed.values.first;
+  File? img;
+  var artWidth = 100;
+  var artLength = 100;
+  var artYear = 2025;
+  var geo = [0.0, 0.0];
+}
 
 class SubmissionManager {
   static var storage = FirebaseStorage.instance;

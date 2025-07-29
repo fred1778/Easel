@@ -2,10 +2,13 @@ import 'dart:isolate';
 
 import 'package:easel/FavouritesList.dart';
 import 'package:easel/SubmitView.dart';
+import 'package:easel/artworkdetail.dart';
+import 'package:easel/feedmanager.dart';
 import 'package:easel/genericlist.dart';
 import 'package:easel/homefeed.dart';
 import 'package:easel/myartlist.dart';
 import 'package:easel/profileenrich.dart';
+import 'package:easel/searchscreen.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,41 +36,7 @@ class DiscoHomeState extends State<Discoverhome> {
     return Stack(
       children: [
         if (discoMode == DiscoMode.map) DiscoverMap(),
-
-        /* SegmentedButton(
-          segments: [
-            ButtonSegment(
-              value: DiscoMode.search,
-              label: Text(
-                "Search",
-                style: GoogleFonts.playfairDisplay(
-                  color: Colors.blueGrey,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-            ButtonSegment(
-              value: DiscoMode.map,
-              label: Text(
-                "Map",
-                style: GoogleFonts.playfairDisplay(
-                  color: Colors.blueGrey,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-          ],
-          selected: <DiscoMode>{discoMode},
-
-          onSelectionChanged: (Set<DiscoMode> newSelection) {
-            setState(() {
-              discoMode = newSelection.first;
-            });
-          },
-          expandedInsets: EdgeInsets.all(5),
-          style: ButtonStyle(enableFeedback: false),
-          showSelectedIcon: false,
-        ),*/
+        if (discoMode == DiscoMode.search) Searchscreen(),
       ],
     );
   }
@@ -81,18 +50,45 @@ class DiscoverMap extends StatefulWidget {
   State<StatefulWidget> createState() => DiscoverMapState();
 }
 
+class PointProcess extends OnPointAnnotationClickListener {
+  void Function(ArtPiece)? update;
+
+  @override
+  void onPointAnnotationClick(PointAnnotation annotation) {
+    print(annotation.textField ?? "unknown");
+    ArtPiece art = FeedManager.artFeed.firstWhere(
+      (piece) => piece.title == annotation.textField,
+    );
+    if (update != null) {
+      update!(art);
+    }
+    annotation.iconOpacity = 0.5;
+  }
+}
+
 class DiscoverMapState extends State<DiscoverMap> {
   MapboxMap? map;
   bool located = false;
   PointAnnotationManager? pointManager;
+  bool navigate = false;
+  ArtPiece? artwork;
+
+  void annotationClick(ArtPiece art) {
+    setState(() {
+      this.artwork = art;
+      this.navigate = true;
+    });
+  }
+
+  PointProcess pointProcess = PointProcess();
 
   void mapSetUp(MapboxMap newMap) async {
-    print("xxxxxx jjjjjjjj");
-    this.map = newMap;
     newMap.location.updateSettings(LocationComponentSettings(enabled: true));
+    this.map = newMap;
     this.pointManager = await newMap.annotations.createPointAnnotationManager();
-    pointManager?.setIconOpacity(0.5);
+    // pointManager?.setIconOpacity(0.5);
     pointManager?.createMulti(widget.engine.generateAnnotationList());
+    pointManager?.addOnPointAnnotationClickListener(pointProcess);
   }
 
   @override
@@ -106,12 +102,24 @@ class DiscoverMapState extends State<DiscoverMap> {
       );
       widget.firstLoad = true;
     }
+    pointProcess.update = annotationClick;
 
     if (located) {
+      //if (!navigate) {
       return MapWidget(
         cameraOptions: widget.engine.startCam!,
         onMapCreated: mapSetUp,
-        //  styleUri: "mapbox://styles/freddles/cmdd39htc00au01r19h43bs09",
+        styleUri: "mapbox://styles/freddles/cmdd39htc00au01r19h43bs09",
+        onTapListener: (mcontext) {
+          if (navigate) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ArtWorkDetail(toDisplay: this.artwork!),
+              ),
+            );
+          }
+        },
       );
     } else {
       return Text("dddd");
