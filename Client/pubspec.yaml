@@ -1,19 +1,37 @@
 name: easel
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
   sdk: ^3.8.0
-
+dependency_overrides:
+  sane_uuid: 1.0.0-alpha.5
 dependencies:
   flutter:
     sdk: flutter
+  firebase_core: any
+  firebase_auth: ^5.6.0
+  google_fonts: ^6.2.1
+  cloud_firestore: ^5.6.9
+  pinch_zoom: ^2.0.1
+  image_picker: ^1.1.2
+  firebase_storage: ^12.4.7
+  cached_network_image: ^3.4.1
+  mapbox_maps_flutter: ^2.9.1
+  permission_handler: ^12.0.1
+  geolocator: ^14.0.2
+  typed_data: ^1.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  image_picker: ^1.1.2
 
 flutter:
   uses-material-design: true
+  assets:
+    - images/trimark3.png
+    - images/map_mark.png
+    - images/mm3.png
