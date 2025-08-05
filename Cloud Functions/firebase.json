@@ -4,16 +4,13 @@
       "source": "functions",
       "codebase": "default",
       "ignore": [
-        "node_modules",
+        "venv",
         ".git",
         "firebase-debug.log",
-        "firebase-debug.*.log"
+        "firebase-debug.*.log",
+        "*.local"
       ],
-      "predeploy": []
+      "runtime": "python313"
     }
-  ],
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  }
+  ]
 }
