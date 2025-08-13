@@ -1,3 +1,5 @@
+import 'package:easel/SubmitView.dart';
+import 'package:easel/artistinfo.dart';
 import 'package:easel/auth.dart';
 import 'package:easel/geosnapper.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class ArtWorkDetail extends StatelessWidget {
   final ArtPiece toDisplay;
-  const ArtWorkDetail({super.key, required this.toDisplay});
+  final bool? popBack;
+  const ArtWorkDetail({super.key, required this.toDisplay, this.popBack});
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -35,11 +38,15 @@ class ArtWorkFrameState extends State<ArtWorkFrame> {
   bool textOverlay = false;
   var imgFound = false;
   var imgUrl = "";
-  void updateURL(String url) {
+  var dtlUrl = "";
+
+  ImgTypes imgType = ImgTypes.main;
+
+  void updateURL(Set<String> urls) {
     if (!mounted) return;
     setState(() {
-      print("XXXXXXXX " + url);
-      imgUrl = url;
+      imgUrl = urls.first;
+      dtlUrl = urls.elementAt(1);
       imgFound = true;
     });
   }
@@ -54,74 +61,154 @@ class ArtWorkFrameState extends State<ArtWorkFrame> {
   @override
   Widget build(BuildContext context) {
     if (!imgFound && mounted) {
-      FeedManager.getURLForPath(widget.toDisplay.imgPath, updateURL);
+      FeedManager.getURLsForPath(
+        widget.toDisplay.imgPath,
+        "${widget.toDisplay.imgPath}_dtl",
+        updateURL,
+      );
     }
-    return GestureDetector(
-      onTap: toggleDisplay,
-      child: Container(
-        color: Colors.black,
-        child: Stack(
-          alignment: Alignment.topCenter,
-          children: [
-            if (imgFound)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: CachedNetworkImage(
-                      imageUrl: imgUrl,
-
-                      fit: BoxFit.fitHeight,
-                      height: 320,
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    ),
-                  ),
-                ],
-              ),
-            if (textOverlay)
-              ColoredBox(
-                color: Color.fromARGB(187, 0, 0, 0),
-                child: Container(
-                  padding: EdgeInsets.all(6),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: toggleDisplay,
+          child: Container(
+            color: (imgType == ImgTypes.main || imgType == ImgTypes.detail)
+                ? Colors.black
+                : Colors.white,
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                if (imgFound)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Flexible(
+                        child: () {
+                          if (imgType == ImgTypes.main ||
+                              imgType == ImgTypes.detail) {
+                            return CachedNetworkImage(
+                              imageUrl: imgType == ImgTypes.main
+                                  ? imgUrl
+                                  : dtlUrl,
+
+                              fit: BoxFit.fitHeight,
+                              height: 320,
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Icon(Icons.error),
+                            );
+                          } else if (imgType == ImgTypes.story) {
+                            return Container(
+                              padding: EdgeInsets.all(20),
+                              height: 300,
+                              child: Text(
+                                "\"${widget.toDisplay.blurb}\"",
+                                style: GoogleFonts.playfair(fontSize: 30),
+                              ),
+                            );
+                          } else {
+                            return Image.asset("images/wall.png");
+                          }
+                        }(),
+                      ),
+                    ],
+                  ),
+                if (textOverlay)
+                  ColoredBox(
+                    color: Color.fromARGB(187, 0, 0, 0),
+                    child: Container(
+                      padding: EdgeInsets.all(6),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Studio Notes",
+                                style: GoogleFonts.playfair(
+                                  color: Color(0x90FFFFFF),
+                                  fontSize: 40,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
                           Text(
-                            "Studio Notes",
+                            widget.toDisplay.blurb,
                             style: GoogleFonts.playfair(
-                              color: Color(0x90FFFFFF),
-                              fontSize: 40,
-                              fontStyle: FontStyle.italic,
+                              color: Colors.white,
+                              fontSize: 20,
                             ),
                           ),
                         ],
                       ),
-                      Text(
-                        widget.toDisplay.blurb,
-                        style: GoogleFonts.playfair(
-                          color: Colors.white,
-                          fontSize: 20,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-          ],
+              ],
+            ),
+          ),
         ),
-      ),
+
+        SegmentedButton(
+          segments: [
+            ButtonSegment(
+              value: ImgTypes.main,
+              icon: Icon(Icons.image_outlined),
+              label: Text("Full", style: GoogleFonts.playfair()),
+            ),
+            ButtonSegment(
+              value: ImgTypes.detail,
+              icon: Icon(Icons.pageview_outlined),
+              label: Text("Detail", style: GoogleFonts.playfair()),
+            ),
+            ButtonSegment(
+              value: ImgTypes.wall,
+              icon: Icon(Icons.picture_in_picture_alt_outlined),
+              label: Text("Room", style: GoogleFonts.playfair()),
+            ),
+
+            ButtonSegment(
+              value: ImgTypes.story,
+              icon: Icon(Icons.format_quote_outlined),
+              label: Text("Studio Notes", style: GoogleFonts.playfair()),
+            ),
+          ],
+          selected: <ImgTypes>{imgType},
+          onSelectionChanged: (selection) {
+            setState(() {
+              imgType = selection.first;
+            });
+          },
+        ),
+      ],
     );
+  }
+}
+
+class ImageToggleBar extends StatefulWidget {
+  Function(ImgTypes) setShow;
+  ImageToggleBar({required this.setShow});
+
+  @override
+  State<StatefulWidget> createState() => ImageTogBarState();
+}
+
+class ImageTogBarState extends State<ImageToggleBar> {
+  var selection = ImgTypes.main;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(children: [Text("d")]);
   }
 }
 
 class ArtDetailPane extends StatefulWidget {
   final ArtPiece toDisplay;
-  const ArtDetailPane({super.key, required this.toDisplay});
+  final bool? pop;
+
+  const ArtDetailPane({super.key, required this.toDisplay, this.pop});
 
   @override
   State<StatefulWidget> createState() => ArtPaneState();
@@ -130,9 +217,14 @@ class ArtDetailPane extends StatefulWidget {
 class ArtPaneState extends State<ArtDetailPane> {
   var artistInfoFetched = false;
   UserProfile? user;
+
   void fillUser(UserProfile userData) {
     if (!artistInfoFetched) {
       setState(() {
+        print("--------");
+        print(userData.name);
+
+        print(userData.locale);
         user = userData;
         artistInfoFetched = true;
       });
@@ -158,7 +250,7 @@ class ArtPaneState extends State<ArtDetailPane> {
                       widget.toDisplay.title,
                       style: GoogleFonts.playfair(
                         color: Colors.black,
-                        fontSize: 30,
+                        fontSize: 32,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
@@ -170,11 +262,26 @@ class ArtPaneState extends State<ArtDetailPane> {
                 spacing: 10,
                 children: [
                   if (artistInfoFetched)
-                    Text(
-                      user?.name ?? "d",
-                      style: GoogleFonts.playfair(
-                        color: Colors.black,
-                        fontSize: 22,
+                    GestureDetector(
+                      onTap: () {
+                        if (widget.pop == null || widget.pop == false) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Artistinfo(artist: user!),
+                            ),
+                          );
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Text(
+                        user?.name ?? "d",
+                        style: GoogleFonts.playfair(
+                          color: Colors.black,
+                          fontSize: 25,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
                   Text("●"),
@@ -182,7 +289,7 @@ class ArtPaneState extends State<ArtDetailPane> {
                     widget.toDisplay.year,
                     style: GoogleFonts.playfair(
                       color: Colors.black,
-                      fontSize: 22,
+                      fontSize: 25,
                     ),
                   ),
                   Spacer(),
@@ -190,16 +297,10 @@ class ArtPaneState extends State<ArtDetailPane> {
               ),
               Divider(),
               ArtInfoPanel(artwork: widget.toDisplay),
-              //  Geosnap(widget.toDisplay),
+              //Geosnap(widget.toDisplay),
             ],
           ),
         ),
-
-        /* GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: LatLng(51.999407, -2.903035),
-          ),
-        ),*/
         Spacer(),
         MarketPanel(artwork: widget.toDisplay),
       ],
@@ -247,9 +348,13 @@ class ArtInfoPanel extends StatelessWidget {
       children: [
         ArtInfoBox(
           iconName: Icons.aspect_ratio,
-          text: RenderingServices.dimensions(artwork.width, artwork.height),
+          text: RenderingServices.dimensions(
+            artwork.width.toInt(),
+            artwork.height.toInt(),
+          ),
         ),
         ArtInfoBox(iconName: Icons.palette, text: artwork.medium),
+
         Spacer(),
       ],
     );

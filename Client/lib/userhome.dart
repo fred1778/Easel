@@ -6,6 +6,7 @@ import 'package:easel/genericlist.dart';
 import 'package:easel/homefeed.dart';
 import 'package:easel/myartlist.dart';
 import 'package:easel/profileenrich.dart';
+import 'package:easel/screeningtask.dart';
 
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,10 +17,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'auth.dart';
 import 'submissionmanager.dart';
 
-class Userhome extends StatelessWidget {
+class Userhome extends StatefulWidget {
   const Userhome({super.key, required this.logout});
   final void Function(bool) logout;
 
+  @override
+  State<StatefulWidget> createState() => UserhomeState();
+}
+
+class UserhomeState extends State<Userhome> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -49,6 +55,8 @@ class Userhome extends StatelessWidget {
           ),
           Divider(),
 
+          SubmissionPoint(),
+
           StandardAction(
             onPush: () {
               print("fav push");
@@ -65,6 +73,7 @@ class Userhome extends StatelessWidget {
             chevron: true,
             context: context,
           ),
+
           StandardAction(
             onPush: () {
               Navigator.push(
@@ -77,12 +86,28 @@ class Userhome extends StatelessWidget {
             chevron: true,
             context: context,
           ),
+
+          if (BootManager.currentUserProfile!.score > 99)
+            StandardAction(
+              onPush: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Screeningtask()),
+                );
+              },
+              symbol: Icon(Icons.preview_outlined),
+              label: "Screening Tasks",
+              chevron: true,
+              context: context,
+            ),
+
+          Spacer(),
           StandardAction(
             onPush: () {
               print("so push");
 
               BootManager.signout();
-              logout(false);
+              widget.logout(false);
             },
             symbol: Icon(
               Icons.logout,
@@ -92,10 +117,6 @@ class Userhome extends StatelessWidget {
             chevron: false,
             context: context,
           ),
-
-          Spacer(),
-
-          SubmissionPoint(),
         ],
       ),
     );
@@ -145,6 +166,9 @@ class SubmissionPointState extends State<SubmissionPoint> {
                 });
               });
             },
+            style: ButtonStyle(
+              backgroundColor: WidgetStatePropertyAll<Color>(Colors.blueGrey),
+            ),
             child: Container(
               child: Row(
                 children: [
@@ -156,7 +180,7 @@ class SubmissionPointState extends State<SubmissionPoint> {
                         style: GoogleFonts.playfair(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(255, 215, 75, 20),
+                          color: const Color.fromARGB(255, 243, 243, 243),
                         ),
                       ),
                     ],
@@ -174,7 +198,6 @@ class SubmissionPointState extends State<SubmissionPoint> {
           Spacer(),
           FloatingActionButton.extended(
             backgroundColor: Colors.blueGrey,
-            splashColor: Colors.orange,
             onPressed: () {
               Navigator.push(
                 context,

@@ -20,10 +20,16 @@ class ArtSubmissionData {
   var mediumApp = ApplicationMed.values.first;
   var mediumBase = BaseMed.values.first;
   File? img;
+  File? imgDtl;
   var artWidth = 100;
   var artLength = 100;
-  var artYear = 2025;
+  var artDepth = 10;
+  var artYear = "2025";
   var geo = [0.0, 0.0];
+
+  bool readyToSubmit() {
+    return !(img == null || img == null || title == "" || blurb == "");
+  }
 }
 
 class SubmissionManager {
@@ -31,56 +37,72 @@ class SubmissionManager {
   static final imgStorageRoot = storage.ref().child("images");
   static UserProfile? user = BootManager.currentUserProfile;
   static var db = FirebaseFirestore.instance;
+  static var imgref = "";
+  static var imgrefDtl = "";
 
-  static addImage(File imgFile, ArtPiece artdata) {
+  static addImage(File imgFile, File imgdtFile) {
     if (BootManager.currentUserProfile == null) {
       // error with no current user - should NOT happen but to be safe
       return;
     }
-    // images will be uploaded with userid_timestamp name
-    String imgref =
-        "${BootManager.userid}_${DateTime.now().microsecondsSinceEpoch}";
+    final time = DateTime.now().microsecondsSinceEpoch;
 
-    SubmissionManager.uploadFile(imgFile, imgref, artdata);
+    // images will be uploaded with userid_timestamp name
+    imgref = "${BootManager.userid}_${time}";
+
+    SubmissionManager.uploadFile(imgFile, imgdtFile, imgref);
   }
 
-  static createArtworkRecord(String path, ArtPiece artdata) {
+  // NEW single submission point - called by view, handles the rest using other class methods
+
+  static submitArtData(ArtSubmissionData submission) {
     var artist = user?.id ?? "0";
     var timestamp = DateTime.now();
 
-    final newArtworkRecord = <String, dynamic>{
-      "title": artdata.title,
-      "artist": artist,
-      "medium": artdata.medium,
-      "width": 100,
-      "height": 100,
-      "price": artdata.price,
-      "blurb": artdata.blurb,
-      "status": "available",
-      "uploaded": timestamp,
-      "geoloc": artdata.geoloc,
-      "year": artdata.year,
-    };
-    db.collection("artworks").doc(path).set(newArtworkRecord);
-  }
+    addImage(submission.img!, submission.imgDtl!);
+    var med = "${submission.mediumApp.name} on ${submission.mediumBase.name}";
 
-  // ref coords bristol 51.454010303118345, -2.6006883211148932
+    final newArtworkRecord = <String, dynamic>{
+      "title": submission.title,
+      "artist": artist,
+      "medium": med,
+      "width": submission.artWidth,
+      "depth": submission.artDepth,
+      "height": submission.artLength,
+      "price": submission.price,
+      "blurb": submission.blurb,
+      "status": "A",
+      "uploaded": timestamp,
+      "geoloc": submission.geo,
+      "year": submission.artYear,
+      "refer_assignee": "",
+    };
+    db.collection("artworks").doc(imgref).set(newArtworkRecord);
+  }
 
   static Future<void> uploadFile(
     File img,
+    File imgDtl,
     String path,
-    ArtPiece artwork,
+
+    // ArtPiece artwork,
   ) async {
     // We can update custom metdadata but I think we should still link it to an associated record in realtime db as
     // otherwise we're kind of misuisng what metadata is. Maybe location? idk..
-
+    String dtlPath = "${path}_dtl";
     try {
       await imgStorageRoot.child(path).putFile(img);
     } on FirebaseException catch (e) {
       print(e.code);
     }
+
+    try {
+      await imgStorageRoot.child(dtlPath).putFile(imgDtl);
+    } on FirebaseException catch (e) {
+      print(e.code);
+    }
     // register artwork info
-    SubmissionManager.createArtworkRecord(path, artwork);
+    // SubmissionManager.createArtworkRecord(path, artwork);
     // pre-emptivley update feeds - is this ineffecient? Want one centralised array that different feeds can draw from, fetching new data if needed
   }
 }

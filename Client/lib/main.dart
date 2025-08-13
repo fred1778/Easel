@@ -5,12 +5,8 @@ import 'package:easel/userhome.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'login.dart';
-import 'auth.dart';
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'tabbar.dart';
-import 'discoverhome.dart';
 
 void main() async {
   print("eeeee");

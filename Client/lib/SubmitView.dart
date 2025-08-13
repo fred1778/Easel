@@ -3,11 +3,8 @@ import 'package:easel/homefeed.dart';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:easel/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,17 +23,60 @@ enum ApplicationMed {
   Print,
 }
 
+enum ImgTypes { main, detail, wall, story }
+
 enum BaseMed { Canvas, Paper, Board, Wood, Glass, Photograph }
 
+class MultipleImgPicker extends StatefulWidget {
+  ArtSubmissionData artdata;
+  MultipleImgPicker({super.key, required this.artdata});
+
+  @override
+  State<StatefulWidget> createState() => MultipleImgPickerState();
+}
+
+class MultipleImgPickerState extends State<MultipleImgPicker> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(color: const Color.fromARGB(65, 186, 186, 186)),
+      height: 200,
+      child: Row(
+        children: [
+          Spacer(),
+          ImgPicker(
+            setFile: (selected) {
+              widget.artdata.img = selected;
+            },
+            type: ImgTypes.main,
+          ),
+          Spacer(),
+          ImgPicker(
+            setFile: (selected) {
+              widget.artdata.imgDtl = selected;
+            },
+            type: ImgTypes.detail,
+          ),
+
+          Spacer(),
+        ],
+      ),
+    );
+  }
+}
+
 class ImgPicker extends StatefulWidget {
+  ImgTypes type;
+
   final void Function(File) setFile;
-  ImgPicker({super.key, required this.setFile});
+  ImgPicker({super.key, required this.setFile, required this.type});
   @override
   State<StatefulWidget> createState() => ImgPickerState();
 }
 
 class ImgPickerState extends State<ImgPicker> {
   ImagePicker imgPicker = ImagePicker();
+
   File? selectedImg;
   int step = 1;
 
@@ -48,28 +88,30 @@ class ImgPickerState extends State<ImgPicker> {
       if (selectedImg != null) {
         widget.setFile(selectedImg!);
       }
-
-      //SubmissionManager.addImage(selectedImg!);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Color(0x10000000),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return Container(
+      width: 200,
+      child: Stack(
+        alignment: AlignmentDirectional.center,
         children: [
-          if (selectedImg != null)
-            Container(width: 100, height: 100, child: Image.file(selectedImg!)),
-          if (selectedImg == null)
-            ElevatedButton(
-              onPressed: pickImage,
-              child: Text(selectedImg == null ? "Select Image" : "Reselect"),
+          if (selectedImg != null) Image.file(selectedImg!),
+          ElevatedButton(
+            onPressed: pickImage,
+            child: Text(
+              selectedImg == null
+                  ? "Select ${widget.type == ImgTypes.main ? "main" : "detail"} image"
+                  : "Reselect",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.playfair(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+          ),
         ],
       ),
     );
@@ -90,7 +132,10 @@ class SubmitViewState extends State<SubmitView> {
   var mediumApp = ApplicationMed.values.first;
   var mediumBase = BaseMed.values.first;
   File? img;
+  File? img2;
   var progress = 1;
+
+  var ready = true;
 
   ArtSubmissionData newArt = ArtSubmissionData();
 
@@ -113,29 +158,45 @@ class SubmitViewState extends State<SubmitView> {
               else
                 Expanded(child: SubmitSheetB(newArt: newArt)),
 
-              Row(
-                children: [
-                  if (progress == 2)
-                    FilledButton.tonal(
-                      onPressed: () {
-                        setState(() {
-                          progress--;
-                        });
-                      },
-                      child: Text("Back"),
+              Container(
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  children: [
+                    if (progress == 2)
+                      FilledButton.tonal(
+                        onPressed: () {
+                          setState(() {
+                            progress--;
+                            ready = true;
+                          });
+                        },
+                        child: Text(
+                          "Back",
+                          style: GoogleFonts.playfair(fontSize: 20),
+                        ),
+                      ),
+                    Spacer(),
+                    FilledButton(
+                      onPressed: (!ready)
+                          ? null
+                          : () {
+                              if (progress == 1) {
+                                setState(() {
+                                  progress++;
+                                  ready = newArt.readyToSubmit();
+                                });
+                              } else {
+                                SubmissionManager.submitArtData(newArt);
+                                Navigator.pop(context);
+                              }
+                            },
+                      child: Text(
+                        progress == 1 ? "Next" : "Submit",
+                        style: GoogleFonts.playfair(fontSize: 20),
+                      ),
                     ),
-                  Spacer(),
-                  FilledButton(
-                    onPressed: () {
-                      if (progress == 1) {
-                        setState(() {
-                          progress++;
-                        });
-                      } else {}
-                    },
-                    child: Text(progress == 1 ? "Next" : "Submit"),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -149,23 +210,32 @@ class EaselInput extends StatelessWidget {
   final void Function(String) submit;
   final String placeholder;
   final double? xRestrict;
+  final bool numeric;
+  final int? extraHeight;
 
   EaselInput({
     super.key,
     required this.submit,
     required this.placeholder,
     this.xRestrict,
+    this.numeric = false,
+    this.extraHeight,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      keyboardType: numeric ? TextInputType.number : TextInputType.text,
       style: GoogleFonts.playfair(),
       onSubmitted: (String value) {
         submit(value);
       },
+      onChanged: (value) {
+        submit(value);
+      },
 
       obscureText: false,
+      maxLines: extraHeight,
 
       decoration: InputDecoration(
         constraints: (xRestrict != null)
@@ -232,9 +302,21 @@ class SlideState extends State<SlideSelect> {
       children: [
         Container(
           padding: EdgeInsets.all(5),
-          child: Text(
-            "Price £" + val.toInt().toString(),
-            style: GoogleFonts.playfair(fontSize: 20),
+          child: Row(
+            spacing: 5,
+            children: [
+              Icon(Icons.sell_outlined, color: Colors.blueGrey),
+
+              Text(
+                "Select sale price",
+                style: GoogleFonts.playfair(fontSize: 24),
+              ),
+              Spacer(),
+              Text(
+                "£" + val.toInt().toString(),
+                style: GoogleFonts.playfair(fontSize: 24),
+              ),
+            ],
           ),
         ),
         Slider(
@@ -256,9 +338,15 @@ class SlideState extends State<SlideSelect> {
   }
 }
 
-class SubmitSheetB extends StatelessWidget {
+class SubmitSheetB extends StatefulWidget {
   ArtSubmissionData newArt;
   SubmitSheetB({super.key, required this.newArt});
+  @override
+  State<StatefulWidget> createState() => SubmitSheetBState();
+}
+
+class SubmitSheetBState extends State<SubmitSheetB> {
+  bool needDepth = false;
 
   @override
   Widget build(BuildContext context) {
@@ -268,14 +356,15 @@ class SubmitSheetB extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text("Where is it?"),
+              Text("Where is it?", style: GoogleFonts.playfair(fontSize: 24)),
               Spacer(),
               OutlinedButton(
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => Coordinateselector(artData: newArt),
+                      builder: (context) =>
+                          Coordinateselector(artData: widget.newArt),
                     ),
                   );
                 },
@@ -284,35 +373,80 @@ class SubmitSheetB extends StatelessWidget {
             ],
           ),
 
-          Row(children: [Text("Dimensions"), Spacer()]),
+          EaselDivider(),
+
+          Row(
+            children: [
+              Text(
+                "Dimensions (cm)",
+                style: GoogleFonts.playfair(fontSize: 24),
+              ),
+              Spacer(),
+            ],
+          ),
           Row(
             spacing: 15,
             children: [
               EaselInput(
                 submit: ((v) {
-                  print(v);
+                  widget.newArt.artWidth = int.tryParse(v) ?? 0;
                 }),
                 placeholder: "Width",
-                xRestrict: 100,
+                xRestrict: 90,
+                numeric: true,
               ),
+              Text("x", style: GoogleFonts.playfair(fontSize: 20)),
               EaselInput(
                 submit: ((v) {
-                  print(v);
+                  widget.newArt.artLength = int.tryParse(v) ?? 0;
                 }),
                 placeholder: "Height",
-                xRestrict: 120,
+                xRestrict: 90,
+                numeric: true,
               ),
-              if (newArt.mediumApp == ApplicationMed.Ceramics ||
-                  newArt.mediumApp == ApplicationMed.Sculpture)
-                EaselInput(
-                  submit: ((v) {
-                    print(v);
-                  }),
-                  placeholder: "Depth",
-                  xRestrict: 120,
+              if (needDepth)
+                Row(
+                  spacing: 15,
+
+                  children: [
+                    Text("x", style: GoogleFonts.playfair(fontSize: 20)),
+                    EaselInput(
+                      submit: ((v) {
+                        widget.newArt.artDepth = int.tryParse(v) ?? 0;
+                      }),
+                      placeholder: "Depth",
+                      xRestrict: 90,
+                      numeric: true,
+                    ),
+                  ],
                 ),
               Spacer(),
             ],
+          ),
+          Row(children: [Text("Select Medium"), Spacer()]),
+          ChipSelector<ApplicationMed>(
+            update: (sel) {
+              widget.newArt.mediumApp = ApplicationMed.values.firstWhere(
+                (element) => element.name == sel,
+              );
+
+              setState(() {
+                needDepth =
+                    (widget.newArt.mediumApp == ApplicationMed.Ceramics ||
+                    widget.newArt.mediumApp == ApplicationMed.Sculpture);
+              });
+            },
+            options: ApplicationMed.values,
+          ),
+          Row(children: [Text("Select Surface"), Spacer()]),
+
+          ChipSelector<BaseMed>(
+            update: (sel) {
+              widget.newArt.mediumBase = BaseMed.values.firstWhere(
+                (element) => element.name == sel,
+              );
+            },
+            options: BaseMed.values,
           ),
         ],
       ),
@@ -328,12 +462,9 @@ class SubmitSheetA extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Column(
+        spacing: 10,
         children: [
-          ImgPicker(
-            setFile: (imageFile) {
-              newArt.img = imageFile;
-            },
-          ),
+          MultipleImgPicker(artdata: newArt),
           EaselInput(
             submit: (str) {
               newArt.title = str;
@@ -346,33 +477,17 @@ class SubmitSheetA extends StatelessWidget {
               newArt.blurb = val;
             },
             placeholder: "Why did you make it?",
+            extraHeight: 3,
           ),
-
+          EaselDivider(),
           SlideSelect(
             change: (val) {
               newArt.price = val;
             },
           ),
 
-          ChipSelector<ApplicationMed>(
-            update: (sel) {
-              newArt.mediumApp = ApplicationMed.values.firstWhere(
-                (element) => element.name == sel,
-              );
-            },
-            options: ApplicationMed.values,
-          ),
-          ChipSelector<BaseMed>(
-            update: (sel) {
-              newArt.mediumBase = BaseMed.values.firstWhere(
-                (element) => element.name == sel,
-              );
-            },
-            options: BaseMed.values,
-          ),
-
           Spacer(),
-          Divider(),
+          //Divider(),
           Row(children: [Spacer()]),
         ],
       ),
@@ -380,32 +495,12 @@ class SubmitSheetA extends StatelessWidget {
   }
 }
 
-
-
-
-
- /*  FilledButton(
-                    onPressed: () {
-                      var med = "${mediumApp.name} on ${mediumBase.name}";
-                      var int_price = price.toInt();
-                      var artwork = ArtPiece(
-                        "/",
-                        "/",
-                        title,
-                        40,
-                        40,
-                        med,
-                        int_price,
-                        blurb,
-                        [55.0393, -1.39, 0.0],
-                        "2025",
-                      );
-                      SubmissionManager.addImage(img!, artwork);
-                      Navigator.pop(context);
-                      setState(() {});
-                    },
-                    child: Text(
-                      "Submit Artwork",
-                      style: GoogleFonts.playfair(fontSize: 20),
-                    ),
-                  ),*/
+class EaselDivider extends StatelessWidget {
+  const EaselDivider({super.key});
+  @override
+  Widget build(BuildContext context) => Divider(
+    color: const Color.fromARGB(97, 96, 125, 139),
+    indent: 20,
+    endIndent: 20,
+  );
+}

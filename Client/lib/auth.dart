@@ -1,12 +1,11 @@
-import 'package:easel/feedmanager.dart';
-
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import "login.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:easel/auth.dart';
 import 'package:flutter/material.dart';
+import 'profileenrich.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 class UserProfile {
   String name;
@@ -14,7 +13,28 @@ class UserProfile {
   bool artist;
   // Shortlist (string of artwork IDs)
   List<String> saved;
-  UserProfile(this.name, this.id, this.artist, this.saved);
+  // enrichment info
+  String? blurb;
+  List<num>? locale;
+  List<medias>? artMedium;
+  List<subjects>? subj;
+
+  int uploads;
+  int score;
+  bool sanctioned;
+
+  UserProfile(
+    this.name,
+    this.id,
+    this.artist,
+    this.saved,
+    this.locale,
+    this.blurb,
+
+    this.uploads,
+    this.score,
+    this.sanctioned,
+  );
 
   bool artInSortlist(String artID) {
     return saved.contains(artID);
@@ -82,11 +102,23 @@ class BootManager {
     FirebaseAuth.instance.signOut();
   }
 
-  static upgradeToArtist() {
+  static upgradeToArtist(
+    String blurb,
+    List<num> geo,
+    List<String> artM,
+    List<String> subs,
+  ) {
     // would take additional fields needed to enrich profile
     currentUserProfile!.artist = true;
 
-    db.collection("users").doc(BootManager.userid).update({"artist": true});
+    // TODO - add other profile enrichment stats here
+    db.collection("users").doc(BootManager.userid).update({
+      "artist": true,
+      "blurb": blurb,
+      "locale": geo,
+      "artMedium": artM,
+      "subj": subs,
+    });
   }
 
   static Future<void> deleteUser() async {
@@ -99,8 +131,10 @@ class BootManager {
 
   static Future<void> registerUser(String email, String pw) async {
     try {
-      final credential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(email: email, password: pw);
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: pw,
+      );
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
@@ -129,6 +163,11 @@ class BootManager {
           BootManager.userid,
           data["artist"],
           List.from(data['saved']),
+          List.from(data['locale']),
+          data['blurb'],
+          data['uploads'],
+          data['score'],
+          data['sanctioned'],
         );
       }, onError: (e) => print("Error getting document: $e"));
     }
@@ -142,6 +181,11 @@ class BootManager {
       "last": "notprovided",
       "artist": false,
       "saved": [],
+      "locale": [0, 0],
+      "blurb": "",
+      "uploads": 0,
+      "score": 100,
+      "sanctioned": false,
     };
     db.collection("users").doc(useruid).set(newUser);
   }

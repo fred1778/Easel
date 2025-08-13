@@ -1,5 +1,3 @@
-/*import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
-
 import 'package:easel/homefeed.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:easel/feedmanager.dart';
@@ -11,14 +9,13 @@ import "login.dart";
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easel/auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:geolocator/geolocator.dart' as geo;
 
 class GeoSnapper {
   final double lon;
   final double lat;
   StyleManager styleMan = StyleManager();
-  Uint8List? response;
+  Image? response;
 
   Snapshotter? snap;
 
@@ -38,7 +35,8 @@ class GeoSnapper {
         ),
       );
       this.snap!.start().then((img) {
-        response = img as Uint8List?;
+        print("sssssssss");
+        response = Image.memory(img!);
         if (img != null) {
           completed(true);
         }
@@ -47,6 +45,9 @@ class GeoSnapper {
   }
 
   GeoSnapper(this.lon, this.lat) {
+    MapboxOptions.setAccessToken(
+      "pk.eyJ1IjoiZnJlZGRsZXMiLCJhIjoiY2tsODk3ZWp4MG56cTJwcjI0OXc4bWs4eSJ9.bhQgzXy1d1Fl81oGI8ktiA",
+    );
     styleMan.setStyleURI("mapbox://styles/freddles/cmdd39htc00au01r19h43bs09");
   }
 }
@@ -56,7 +57,10 @@ class Geosnap extends StatefulWidget {
   GeoSnapper? geoSnapDriver;
 
   Geosnap(this.art) {
-    geoSnapDriver = GeoSnapper(art.latLon["lon"]!, art.latLon["lat"]!);
+    geoSnapDriver = GeoSnapper(
+      art.geoloc[1] as double,
+      art.geoloc[0] as double,
+    );
   }
 
   @override
@@ -65,7 +69,7 @@ class Geosnap extends StatefulWidget {
 
 class GeosnapState extends State<Geosnap> {
   bool created = false;
-  Uint8List data = [] as Uint8List;
+  Image? img;
 
   @override
   Widget build(BuildContext context) {
@@ -73,18 +77,13 @@ class GeosnapState extends State<Geosnap> {
       widget.geoSnapDriver!.getSnapshot((done) {
         setState(() {
           created = done;
-          data = widget.geoSnapDriver!.response!;
+          img = widget.geoSnapDriver!.response!;
         });
       });
     }
 
     return Container(
-      child: /*created
-          ? Image.memory(data)
-          : */ ColoredBox(
-        color: Colors.blueAccent,
-      ),
+      child: created ? img : ColoredBox(color: Colors.blueAccent),
     );
   }
 }
-*/

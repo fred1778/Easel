@@ -1,13 +1,4 @@
-import 'package:easel/auth.dart';
-import 'package:easel/homefeed.dart';
-import 'package:easel/userhome.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'login.dart';
-import 'auth.dart';
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class TabBarFrame extends StatefulWidget {
   const TabBarFrame({super.key, required this.tabChange});
@@ -52,6 +43,5 @@ class TabsState extends State<TabBarFrame> with AutomaticKeepAliveClientMixin {
   }
 
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }

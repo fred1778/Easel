@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:easel/feedmanager.dart';
@@ -11,10 +12,95 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easel/auth.dart';
 import 'package:flutter/material.dart';
 import 'dart:typed_data';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'package:geolocator/geolocator.dart' as geo;
 
 class DiscoveryEngine {
+  List<UserProfile> nearby = [];
+
+  static String reverseGeocode(Position coords, Function(String) found) {
+    print("discoeng search");
+    String locRequest = "longitude=${coords.lng}&latitude=${coords.lat}";
+    String filter = "&limit=1&types=place";
+    String access_token_str =
+        "&access_token=pk.eyJ1IjoiZnJlZGRsZXMiLCJhIjoiY2tsODk3ZWp4MG56cTJwcjI0OXc4bWs4eSJ9.bhQgzXy1d1Fl81oGI8ktiA";
+    String geoURL =
+        "https://api.mapbox.com/search/geocode/v6/reverse?${locRequest}${filter}${access_token_str}";
+
+    print(geoURL);
+
+    http.get(Uri.parse(geoURL)).then((locResponse) {
+      final responseMap = jsonDecode(locResponse.body) as Map<String, dynamic>;
+      final f = responseMap["features"];
+      print(f);
+      print(geoURL);
+
+      found(f[0]["properties"]["name"]);
+
+      return "dd";
+    });
+    print("eee");
+
+    return "ee";
+  }
+
+  bool displacementExceeds(double threshold, Position posA, Position posB) {
+    double disp = geo.Geolocator.distanceBetween(
+      posA.lat as double,
+      posA.lng as double,
+      posB.lat as double,
+      posB.lng as double,
+    );
+    print(
+      "DISP THRESH ${threshold.toString()} ----  ${posA.lat.toString()}  AND ${posB.lat.toString()} IS ${disp.toString()}",
+    );
+
+    return disp > threshold;
+  }
+
+  void getArtistsInArea(Position coordinates) {
+    // get artists from FBF where artist flag == true
+
+    // flush the list
+    nearby.clear();
+
+    var db = FirebaseFirestore.instance;
+
+    db
+        .collection("users")
+        .where(
+          "artist",
+          isEqualTo: true,
+        ) //999 is the default value for geoloc indicating
+        .get()
+        .then(
+          (querySnapshot) {
+            for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+              var usr = FeedManager.parseUser(
+                doc.data() as Map<String, dynamic>,
+                doc.id,
+              );
+
+              if (!displacementExceeds(
+                10000,
+                Position(usr.locale![1], usr.locale![0]),
+                coordinates,
+              )) {
+                if (!nearby.contains(usr)) {
+                  nearby.add(usr);
+                  print("user added");
+                }
+              }
+            }
+          },
+          onError: (error) {
+            throw error;
+          },
+        );
+  }
+
   geo.Position? userPos;
   CameraOptions? startCam;
   bool currentLocationReady = false;
@@ -59,7 +145,7 @@ class DiscoveryEngine {
   }
 
   void markerImgData() async {
-    final ByteData bd = await rootBundle.load("images/mm3.png");
+    final ByteData bd = await rootBundle.load("images/trimark4.png");
     this.marker = bd.buffer.asUint8List();
   }
 
@@ -69,12 +155,12 @@ class DiscoveryEngine {
 
     for (var artwork in FeedManager.artFeed) {
       var dd = PointAnnotationOptions(
-        iconSize: 1.2,
+        iconSize: 0.9,
 
         textSize: 12,
-        textColor: Colors.white.toARGB32(),
+        textColor: Colors.black.toARGB32(),
         textOffset: [0, 1.2],
-        textOpacity: 1.0,
+        textOpacity: 0.0, // need the title, don't want to display it
         textField: artwork.title,
         geometry: Point(
           coordinates: Position(artwork.geoloc[1], artwork.geoloc[0]),
@@ -96,7 +182,7 @@ class DiscoveryEngine {
         center: Point(
           coordinates: Position(userPos!.longitude, userPos!.latitude),
         ),
-        zoom: 15.0,
+        zoom: 12.0,
       );
       onComplete(true);
     });

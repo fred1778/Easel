@@ -7,30 +7,41 @@ import 'auth.dart';
 import 'artworkdetail.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'genericlist.dart';
+import 'SubmitView.dart';
 
 class ArtPiece {
   String artist;
   String imgPath;
   String title;
   String medium;
-  int width;
-  int height;
-  int price;
+  num width;
+  num height;
+  num depth;
+  num price;
   String blurb;
   String year;
   List<num> geoloc;
+
+  String status;
+  String refer_assignee;
 
   ArtPiece(
     this.artist,
     this.imgPath,
     this.title,
+    this.medium,
+
     this.height,
     this.width,
-    this.medium,
+    this.depth,
     this.price,
     this.blurb,
-    this.geoloc,
     this.year,
+
+    this.geoloc,
+
+    this.status,
+    this.refer_assignee,
   );
 }
 
@@ -49,7 +60,45 @@ class HomefeedState extends State<Homefeed> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Stack(children: [GenericFeed(), Text("search")]);
+    return Stack(
+      children: [
+        GenericFeed(),
+
+        Container(
+          padding: EdgeInsets.all(10),
+          child: Column(
+            children: [
+              Spacer(),
+              Row(
+                children: [
+                  Spacer(),
+                  if (BootManager.currentUserProfile?.artist != null &&
+                      BootManager.currentUserProfile!.artist == true)
+                    FloatingActionButton.extended(
+                      backgroundColor: Colors.blueGrey,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => SubmitView()),
+                        );
+                      },
+                      icon: Icon(Icons.add, color: Colors.white),
+                      label: Text(
+                        "New Art",
+                        style: GoogleFonts.playfair(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

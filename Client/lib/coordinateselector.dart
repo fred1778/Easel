@@ -22,10 +22,19 @@ import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'discoveryengine.dart';
 
 class Coordinateselector extends StatefulWidget {
-  final ArtSubmissionData artData;
-  var eeee = 333;
+  final ArtSubmissionData? artData;
+  final bool? currentUserLocaleMode;
+  final void Function(Point)? onLocationSelected;
 
-  Coordinateselector({super.key, required this.artData});
+  Color baseColour = Colors.blueGrey;
+  Color passColour = Colors.deepOrange;
+
+  Coordinateselector({
+    super.key,
+    this.artData,
+    this.currentUserLocaleMode,
+    this.onLocationSelected,
+  });
 
   @override
   State<StatefulWidget> createState() => CoordinateselectorState();
@@ -42,6 +51,16 @@ class CoordinateselectorState extends State<Coordinateselector> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLocaleSelector =
+        widget.currentUserLocaleMode != null &&
+        widget.currentUserLocaleMode == true;
+
+    if (isLocaleSelector) {
+      widget.baseColour = const Color.fromARGB(65, 115, 144, 158);
+      widget.passColour = const Color.fromARGB(93, 191, 146, 133);
+    }
+    int minZoom = isLocaleSelector ? 12 : 10;
+
     return Scaffold(
       body: Center(
         child: Container(
@@ -52,15 +71,14 @@ class CoordinateselectorState extends State<Coordinateselector> {
               MapWidget(
                 onMapCreated: mapSetUp,
                 onZoomListener: (mapGesture) {
-                  print("yyyy");
                   map!.getCameraState().then((cam) {
                     setState(() {
-                      approved = cam.zoom >= 10 ? true : false;
+                      approved = cam.zoom >= minZoom ? true : false;
                     });
                   });
                 },
                 cameraOptions: CameraOptions(
-                  center: Point(coordinates: Position(-98.0, 39.5)),
+                  center: Point(coordinates: Position(-1.38, 53.13)),
                   zoom: 10,
                   bearing: 0,
                   pitch: 0,
@@ -80,22 +98,32 @@ class CoordinateselectorState extends State<Coordinateselector> {
                   ),
                   Spacer(),
                   Icon(
-                    Icons.center_focus_strong,
-                    size: 40,
-                    color: approved ? Colors.deepOrange : Colors.blueGrey,
+                    widget.currentUserLocaleMode != null &&
+                            widget.currentUserLocaleMode == true
+                        ? Icons.circle
+                        : Icons.center_focus_strong,
+                    size: isLocaleSelector ? 200 : 40,
+                    color: approved ? widget.passColour : widget.baseColour,
                   ),
                   Spacer(),
                   ElevatedButton(
                     onPressed: approved
                         ? () {
-                            print("Submit");
+                            if (!isLocaleSelector) {
+                              print("Submit");
 
-                            map!.getCameraState().then((cam) {
-                              widget.artData.geo = [
-                                cam.center.coordinates.lat as double,
-                                cam.center.coordinates.lng as double,
-                              ];
-                            });
+                              map!.getCameraState().then((cam) {
+                                widget.artData!.geo = [
+                                  cam.center.coordinates.lat as double,
+                                  cam.center.coordinates.lng as double,
+                                ];
+                              });
+                            } else {
+                              //update user local
+                              map!.getCameraState().then((cam) {
+                                widget.onLocationSelected!(cam.center);
+                              });
+                            }
 
                             Navigator.pop(context);
                           }

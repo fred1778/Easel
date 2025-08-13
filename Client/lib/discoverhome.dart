@@ -2,6 +2,7 @@ import 'dart:isolate';
 
 import 'package:easel/FavouritesList.dart';
 import 'package:easel/SubmitView.dart';
+import 'package:easel/artistlist.dart';
 import 'package:easel/artworkdetail.dart';
 import 'package:easel/feedmanager.dart';
 import 'package:easel/genericlist.dart';
@@ -24,6 +25,8 @@ import 'discoveryengine.dart';
 enum DiscoMode { map, search }
 
 class Discoverhome extends StatefulWidget {
+  final discoEngine = DiscoveryEngine();
+
   @override
   State<StatefulWidget> createState() => DiscoHomeState();
 }
@@ -35,15 +38,56 @@ class DiscoHomeState extends State<Discoverhome> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        if (discoMode == DiscoMode.map) DiscoverMap(),
+        if (discoMode == DiscoMode.map) DiscoverMap(engine: widget.discoEngine),
         if (discoMode == DiscoMode.search) Searchscreen(),
+        Container(
+          padding: EdgeInsets.all(5),
+          child: Column(
+            children: [
+              Spacer(),
+              Row(
+                children: [
+                  FilledButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              Artistlist(engine: widget.discoEngine),
+                        ),
+                      );
+                    },
+                    child: Text("Artists in this Area"),
+                  ),
+
+                  Spacer(),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        discoMode = (discoMode == DiscoMode.map)
+                            ? DiscoMode.search
+                            : DiscoMode.map;
+                      });
+                    },
+
+                    child: Icon(
+                      discoMode == DiscoMode.map ? Icons.search : Icons.map,
+                      size: 30,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
 }
 
 class DiscoverMap extends StatefulWidget {
-  final engine = DiscoveryEngine();
+  final DiscoveryEngine engine;
+  DiscoverMap({required this.engine});
   bool firstLoad = false; // maybe use static
 
   @override
@@ -62,6 +106,7 @@ class PointProcess extends OnPointAnnotationClickListener {
     if (update != null) {
       update!(art);
     }
+
     annotation.iconOpacity = 0.5;
   }
 }
@@ -72,6 +117,7 @@ class DiscoverMapState extends State<DiscoverMap> {
   PointAnnotationManager? pointManager;
   bool navigate = false;
   ArtPiece? artwork;
+  Position? lastUpdatePos;
 
   void annotationClick(ArtPiece art) {
     setState(() {
@@ -91,6 +137,37 @@ class DiscoverMapState extends State<DiscoverMap> {
     pointManager?.addOnPointAnnotationClickListener(pointProcess);
   }
 
+  void zoomMonitor(MapContentGestureContext context) {
+    /*this.map!.getCameraState().then((camState) {
+      if (camState.zoom < 10) {
+        print("ccccccc");
+        this.pointManager!.getAnno
+        this,map!.
+        this.pointManager!.setTextColor(Colors.amber.toARGB32());
+      } else {
+        this.pointManager!.setTextOpacity(1);
+      }
+    });*/
+  }
+
+  void nearbyUpdates(CameraChangedEventData context) {
+    this.map!.getCameraState().then((camState) {
+      print("evaluating disp for artist query");
+      if (lastUpdatePos == null ||
+          widget.engine.displacementExceeds(
+            5000,
+            camState.center.coordinates,
+            lastUpdatePos!,
+          )) {
+        print("new fetch required");
+        widget.engine.getArtistsInArea(camState.center.coordinates);
+        lastUpdatePos = camState.center.coordinates;
+      } else {
+        print("insufficient camera displacement");
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!located && !widget.firstLoad) {
@@ -106,9 +183,26 @@ class DiscoverMapState extends State<DiscoverMap> {
 
     if (located) {
       //if (!navigate) {
+
       return MapWidget(
         cameraOptions: widget.engine.startCam!,
         onMapCreated: mapSetUp,
+        onZoomListener: zoomMonitor,
+        onCameraChangeListener: (CameraChangedEventData context) {
+          this.map!.getCameraState().then((camState) {
+            print("evaluating disp for artist query");
+            if (lastUpdatePos == null ||
+                widget.engine.displacementExceeds(
+                  5000,
+                  camState.center.coordinates,
+                  lastUpdatePos!,
+                )) {
+              print("new fetch required");
+              widget.engine.getArtistsInArea(camState.center.coordinates);
+              lastUpdatePos = camState.center.coordinates;
+            }
+          });
+        },
         styleUri: "mapbox://styles/freddles/cmdd39htc00au01r19h43bs09",
         onTapListener: (mcontext) {
           if (navigate) {
@@ -118,11 +212,17 @@ class DiscoverMapState extends State<DiscoverMap> {
                 builder: (context) => ArtWorkDetail(toDisplay: this.artwork!),
               ),
             );
+            navigate = false;
           }
         },
       );
     } else {
-      return Text("dddd");
+      return Center(
+        child: Text(
+          "Loading Map...",
+          style: GoogleFonts.playfair(fontSize: 28, color: Colors.blueGrey),
+        ),
+      );
     }
   }
 }

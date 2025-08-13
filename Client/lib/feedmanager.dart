@@ -49,10 +49,29 @@ class FeedManager {
   ) async {
     final imgRef = imgStorageRoot.child(path);
     await imgRef.getDownloadURL().then((ref) {
+      onFind(ref);
+    });
+  }
+
+  static Future<void> getURLsForPath(
+    String path,
+    String dtl_path,
+
+    Function(Set<String>) onFind,
+  ) async {
+    final imgRef = imgStorageRoot.child(path);
+    final imgDtlRef = imgStorageRoot.child(dtl_path);
+    print("${path} and ${dtl_path}");
+
+    String imgURL = "";
+
+    await imgRef.getDownloadURL().then((ref) {
       fetchCount++;
       print("*********" + fetchCount.toString() + "  " + ref);
-
-      onFind(ref);
+      imgURL = ref;
+    });
+    await imgDtlRef.getDownloadURL().then((ref) {
+      onFind({imgURL, ref});
     });
   }
 
@@ -60,17 +79,29 @@ class FeedManager {
     String user_id,
     Function(UserProfile) fufill,
   ) {
+    print("IAM 000 3999");
     final useerRef = db.collection("users").doc(user_id);
     useerRef.get().then((DocumentSnapshot doc) {
       final data = doc.data() as Map<String, dynamic>;
-      UserProfile up = UserProfile(
-        data["name"],
-        user_id,
-        true,
-        List.from(data["saved"]),
-      );
+      print(data);
+      UserProfile up = parseUser(data, user_id);
       fufill(up);
     });
+  }
+
+  static UserProfile parseUser(Map<String, dynamic> dataMap, String id) {
+    UserProfile up = UserProfile(
+      dataMap["name"],
+      id,
+      true,
+      List.from(dataMap["saved"]),
+      List<num>.from(dataMap["locale"]),
+      dataMap["blurb"],
+      dataMap['uploads'],
+      dataMap['score'],
+      dataMap['sanctioned'],
+    );
+    return up;
   }
 
   static ArtPiece parseArtPiece(
@@ -92,13 +123,17 @@ class FeedManager {
       dataMap["artist"],
       id,
       dataMap["title"],
+      dataMap["medium"],
+
       dataMap["height"],
       dataMap["width"],
-      dataMap["medium"],
+      dataMap["depth"],
       dataMap["price"],
       dataMap["blurb"],
-      List<num>.from(dataMap["geoloc"]),
       dataMap["year"],
+      List<num>.from(dataMap["geoloc"]),
+      dataMap["status"],
+      dataMap["refer_assignee"],
     );
   }
 
@@ -113,13 +148,18 @@ class FeedManager {
     }
   }
 
-  static void getUserArt(void Function(List<ArtPiece>) complete) {
+  static void getUserArt(
+    void Function(List<ArtPiece>) complete, [
+    String? otherUser,
+  ]) {
     // use .where() for filtering
+    var targetUser = (otherUser == null) ? BootManager.userid : otherUser;
+
     List<ArtPiece> userArt = [];
 
     db
         .collection("artworks")
-        .where("artist", isEqualTo: BootManager.userid)
+        .where("artist", isEqualTo: targetUser)
         .get()
         .then(
           (querySnapshot) {
