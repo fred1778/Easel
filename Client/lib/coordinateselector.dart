@@ -79,7 +79,7 @@ class CoordinateselectorState extends State<Coordinateselector> {
                 },
                 cameraOptions: CameraOptions(
                   center: Point(coordinates: Position(-1.38, 53.13)),
-                  zoom: 10,
+                  zoom: 5,
                   bearing: 0,
                   pitch: 0,
                 ),

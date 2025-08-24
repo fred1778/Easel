@@ -26,6 +26,28 @@ class ArtWorkDetail extends StatelessWidget {
   }
 }
 
+class RoomScaleView extends StatelessWidget {
+  final String imgURL;
+  final ArtPiece art_piece;
+  RoomScaleView({required this.imgURL, required this.art_piece});
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment(0.0, -0.3),
+      children: [
+        Image.asset("images/wall2.png"),
+
+        // Need to make sure the reference image is x by y so we can scale appropiatley, or use known size art to figure it out - whats below is kind of right
+        CachedNetworkImage(
+          imageUrl: imgURL,
+          width: art_piece.width.toDouble() * 1.2,
+          height: art_piece.height.toDouble() * 1.2,
+        ),
+      ],
+    );
+  }
+}
+
 class ArtWorkFrame extends StatefulWidget {
   ArtWorkFrame({super.key, required this.toDisplay});
 
@@ -86,17 +108,22 @@ class ArtWorkFrameState extends State<ArtWorkFrame> {
                         child: () {
                           if (imgType == ImgTypes.main ||
                               imgType == ImgTypes.detail) {
-                            return CachedNetworkImage(
-                              imageUrl: imgType == ImgTypes.main
-                                  ? imgUrl
-                                  : dtlUrl,
+                            return PinchZoom(
+                              child: CachedNetworkImage(
+                                imageUrl: imgType == ImgTypes.main
+                                    ? imgUrl
+                                    : dtlUrl,
 
-                              fit: BoxFit.fitHeight,
-                              height: 320,
-                              placeholder: (context, url) =>
-                                  CircularProgressIndicator(),
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.error),
+                                fit: imgType == ImgTypes.main
+                                    ? BoxFit.fitHeight
+                                    : BoxFit.fitWidth,
+                                height: 320,
+
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
+                              ),
                             );
                           } else if (imgType == ImgTypes.story) {
                             return Container(
@@ -108,7 +135,10 @@ class ArtWorkFrameState extends State<ArtWorkFrame> {
                               ),
                             );
                           } else {
-                            return Image.asset("images/wall.png");
+                            return RoomScaleView(
+                              imgURL: imgUrl,
+                              art_piece: widget.toDisplay,
+                            );
                           }
                         }(),
                       ),
@@ -379,7 +409,7 @@ class MarketPanel extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                "£${artwork.price}",
+                "£${artwork.price.toInt()}",
                 style: GoogleFonts.playfair(color: Colors.black, fontSize: 60),
               ),
               Spacer(),
