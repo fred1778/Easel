@@ -126,7 +126,7 @@ class DiscoverMapState extends State<DiscoverMap> {
     });
   }
 
-  PointProcess pointProcess = PointProcess();
+  PointProcess pointProcess = PointProcess(
 
   void mapSetUp(MapboxMap newMap) async {
     newMap.location.updateSettings(LocationComponentSettings(enabled: true));

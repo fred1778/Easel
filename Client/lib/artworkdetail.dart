@@ -33,15 +33,13 @@ class RoomScaleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: Alignment(0.0, -0.3),
+      alignment: Alignment(0.0, -0.6),
       children: [
         Image.asset("images/wall2.png"),
-
-        // Need to make sure the reference image is x by y so we can scale appropiatley, or use known size art to figure it out - whats below is kind of right
         CachedNetworkImage(
           imageUrl: imgURL,
-          width: art_piece.width.toDouble() * 1.2,
-          height: art_piece.height.toDouble() * 1.2,
+          width: art_piece.width.toDouble() * 1.59,
+          height: art_piece.height.toDouble() * 1.59,
         ),
       ],
     );

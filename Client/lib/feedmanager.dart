@@ -205,6 +205,7 @@ class FeedManager {
       print("getting art");
       db
           .collection("artworks")
+          .where("status", isEqualTo: "approved")
           .get()
           .then(
             (querySnapshot) {
