@@ -44,7 +44,9 @@ class DiscoHomeState extends State<Discoverhome> {
           padding: EdgeInsets.all(5),
           child: Column(
             children: [
+              Row(children:[ Spacer(), Image.asset("images/trim5.png")]),
               Spacer(),
+              
               Row(
                 children: [
                   FilledButton(
@@ -57,7 +59,7 @@ class DiscoHomeState extends State<Discoverhome> {
                         ),
                       );
                     },
-                    child: Text("Artists in this Area"),
+                    child: Text("See artists in this areas >", style: GoogleFonts.playfair(fontSize: 18)),
                   ),
 
                   Spacer(),
@@ -77,6 +79,7 @@ class DiscoHomeState extends State<Discoverhome> {
                   ),
                 ],
               ),
+              SizedBox(height: 30)
             ],
           ),
         ),

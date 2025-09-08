@@ -59,7 +59,7 @@ class CoordinateselectorState extends State<Coordinateselector> {
       widget.baseColour = const Color.fromARGB(65, 115, 144, 158);
       widget.passColour = const Color.fromARGB(93, 191, 146, 133);
     }
-    int minZoom = isLocaleSelector ? 12 : 10;
+    int minZoom = isLocaleSelector ? 15 : 10;
 
     return Scaffold(
       body: Center(
@@ -110,8 +110,6 @@ class CoordinateselectorState extends State<Coordinateselector> {
                     onPressed: approved
                         ? () {
                             if (!isLocaleSelector) {
-                              print("Submit");
-
                               map!.getCameraState().then((cam) {
                                 widget.artData!.geo = [
                                   cam.center.coordinates.lat as double,

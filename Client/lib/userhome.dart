@@ -67,7 +67,7 @@ class UserhomeState extends State<Userhome> {
               );
             },
             symbol: Icon(Icons.bookmark_border, size: 25),
-            label: "My Shortlist",
+            label: "My Saved Artworks",
             secondaryInformation: BootManager.currentUserProfile!.saved.length
                 .toString(),
             chevron: true,
@@ -82,7 +82,7 @@ class UserhomeState extends State<Userhome> {
               );
             },
             symbol: Icon(Icons.color_lens_outlined, size: 25),
-            label: "My Art",
+            label: "My Gallery",
             chevron: true,
             context: context,
           ),

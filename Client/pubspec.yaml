@@ -33,7 +33,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - images/trimark4.png
+    - images/trim5.png
     - images/map_mark.png
     - images/mm3.png
     - images/mm4.png

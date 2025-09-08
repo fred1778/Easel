@@ -41,8 +41,6 @@ class DiscoveryEngine {
 
       return "dd";
     });
-    print("eee");
-
     return "ee";
   }
 
@@ -145,7 +143,7 @@ class DiscoveryEngine {
   }
 
   void markerImgData() async {
-    final ByteData bd = await rootBundle.load("images/trimark4.png");
+    final ByteData bd = await rootBundle.load("images/trim5.png");
     this.marker = bd.buffer.asUint8List();
   }
 
