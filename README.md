@@ -10,3 +10,6 @@ The app comprises a backend comprising email/password authentication, NoSQL data
 The front-end mobile application, developed for iOS and Android using Flutter, allows users to create accounts, favourite artwork, find art near their location via a map view, find local artists. Users can enhance their profile to become artist users able to upload work. 
 
 
+<img width="300" height="672" alt="1000000141" src="https://github.com/user-attachments/assets/f4299abd-46f8-4f45-8ee0-805ed96e2dd1" />
+<img width="300" height="672" alt="1000000143" src="https://github.com/user-attachments/assets/b45e4547-b59c-4b2d-a8d4-6bf874e561d7" />
+<img width="300" height="672" alt="1000000138" src="https://github.com/user-attachments/assets/c2359aa5-9e14-4d13-a576-d18d3223ffeb" />
